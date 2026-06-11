@@ -24,4 +24,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "Rebro"
 include(":app")
+include(":model")
  
