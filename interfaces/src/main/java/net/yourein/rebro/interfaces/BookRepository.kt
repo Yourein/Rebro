@@ -13,6 +13,12 @@ interface BookRepository {
     /** 指定著者が書いた本を取得する（著者での絞り込み）。 */
     fun getBooksByAuthor(authorId: Long): Flow<List<Book>>
 
+    /**
+     * 書名・ISBN・ISDN を横断して曖昧検索する。
+     * 入力がタイトルか管理番号かを呼び出し側で判別する必要はない。
+     */
+    fun searchBooks(query: String): Flow<List<BookWithDetail>>
+
     suspend fun getBook(bookId: Long): Book?
 
     suspend fun getBookWithAuthors(bookId: Long): BookWithAuthors?
