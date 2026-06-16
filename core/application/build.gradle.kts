@@ -22,6 +22,7 @@ android {
 
 dependencies {
     implementation(project(":core:resources"))
+    implementation(project(":core:navigation"))
     implementation(project(":model"))
     implementation(project(":interfaces"))
     implementation(project(":repositories"))   // 本番 Repository の実 Impl を登録するため

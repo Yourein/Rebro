@@ -10,7 +10,23 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/app/development" />
+            <option value="$PROJECT_DIR$/app/production" />
+            <option value="$PROJECT_DIR$/core" />
+            <option value="$PROJECT_DIR$/core/application" />
+            <option value="$PROJECT_DIR$/core/navigation" />
+            <option value="$PROJECT_DIR$/core/resources" />
+            <option value="$PROJECT_DIR$/feature" />
+            <option value="$PROJECT_DIR$/feature/author-detail" />
+            <option value="$PROJECT_DIR$/feature/authors" />
+            <option value="$PROJECT_DIR$/feature/book-detail" />
+            <option value="$PROJECT_DIR$/feature/bookshelf-detail" />
+            <option value="$PROJECT_DIR$/feature/bookshelfs" />
+            <option value="$PROJECT_DIR$/feature/register-top" />
+            <option value="$PROJECT_DIR$/feature/search-top" />
+            <option value="$PROJECT_DIR$/interfaces" />
             <option value="$PROJECT_DIR$/model" />
+            <option value="$PROJECT_DIR$/repositories" />
           </set>
         </option>
       </GradleProjectSettings>
