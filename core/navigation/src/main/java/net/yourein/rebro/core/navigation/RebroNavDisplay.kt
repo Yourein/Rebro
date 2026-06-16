@@ -20,6 +20,13 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
+import net.yourein.rebro.core.navigation.destinations.AuthorDetail
+import net.yourein.rebro.core.navigation.destinations.Authors
+import net.yourein.rebro.core.navigation.destinations.BookDetail
+import net.yourein.rebro.core.navigation.destinations.BookshelfDetail
+import net.yourein.rebro.core.navigation.destinations.Bookshelfs
+import net.yourein.rebro.core.navigation.destinations.RegisterTop
+import net.yourein.rebro.core.navigation.destinations.SearchTop
 import net.yourein.rebro.core.resources.DrawableR
 import net.yourein.rebro.core.resources.RebroColor
 
