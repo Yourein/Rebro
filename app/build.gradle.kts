@@ -41,6 +41,15 @@ android {
 
 dependencies {
     implementation(project(":core:resources"))
+    implementation(project(":model"))
+    implementation(project(":interfaces"))
+    implementation(project(":repositories"))
+
+    implementation(libs.androidx.room.runtime)
+
+    implementation(platform(libs.koin.bom))
+    implementation(libs.koin.android)
+    implementation(libs.koin.androidx.compose)
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
