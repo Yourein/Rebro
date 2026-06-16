@@ -1,18 +1,18 @@
 # 検索機能の技術的実現可能性調査
 
-書名 + 管理番号（ISBN / ISDN）での曖昧検索が可能かどうかの調査メモ。
+書名 + サブタイトル + 管理番号（ISBN / ISDN）での曖昧検索が可能かどうかの調査メモ。
 テキストボックス1つに入力された値で、タイトル・管理番号を区別せず自動的に検索する想定。
 
 ## 結論
 
 現在のスキーマのまま、`BookDao` に検索クエリを1つ追加するだけで実現可能。
-入力がタイトルか管理番号かをアプリ側で判別する必要はなく、3カラムへの OR 検索で自然に満たせる。
+入力がタイトルか管理番号かをアプリ側で判別する必要はなく、4カラムへの OR 検索で自然に満たせる。
 
 ## データ構造の確認
 
 書名と管理番号は別テーブルに分かれている。
 
-- `books` … `title`（書名）を保持。`book_type` で COMMERCIAL / DOUJIN を区別。
+- `books` … `title`（書名）・`subtitle`（サブタイトル）を保持。`book_type` で COMMERCIAL / DOUJIN を区別。
 - `commercial_book_details` … `isbn`（商業本の管理番号）を保持。`book_id` で `books` と 1:1。
 - `doujin_book_details` … `isdn`（同人本の管理番号）を保持。`book_id` で `books` と 1:1。
 
@@ -32,9 +32,10 @@
     SELECT DISTINCT b.* FROM books b
     LEFT JOIN commercial_book_details c ON b.id = c.book_id
     LEFT JOIN doujin_book_details d ON b.id = d.book_id
-    WHERE b.title LIKE '%' || :query || '%'
-       OR c.isbn  LIKE '%' || :query || '%'
-       OR d.isdn  LIKE '%' || :query || '%'
+    WHERE b.title    LIKE '%' || :query || '%'
+       OR b.subtitle LIKE '%' || :query || '%'
+       OR c.isbn     LIKE '%' || :query || '%'
+       OR d.isdn     LIKE '%' || :query || '%'
     ORDER BY b.id ASC
     """
 )

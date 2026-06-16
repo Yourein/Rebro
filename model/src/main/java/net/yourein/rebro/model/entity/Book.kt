@@ -27,6 +27,8 @@ data class Book(
     val bookshelfId: Long,
     @ColumnInfo(name = "title")
     val title: String,
+    @ColumnInfo(name = "subtitle")
+    val subtitle: String? = null,
     @ColumnInfo(name = "thumbnail_path")
     val thumbnailPath: String? = null,
     @ColumnInfo(name = "book_type")

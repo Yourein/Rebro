@@ -32,9 +32,9 @@ interface BookDao {
     fun getBooksByAuthor(authorId: Long): Flow<List<Book>>
 
     /**
-     * 書名・ISBN・ISDN を横断して曖昧検索する。
+     * 書名・サブタイトル・ISBN・ISDN を横断して曖昧検索する。
      * 入力がタイトルか管理番号かを呼び出し側で判別する必要はなく、
-     * 3カラムへの中間一致 OR 検索で一致した本を返す。
+     * 4カラムへの中間一致 OR 検索で一致した本を返す。
      * 商業本／同人本で詳細テーブルの有無が分かれるため LEFT JOIN を用いる。
      */
     @Transaction
@@ -43,9 +43,10 @@ interface BookDao {
         SELECT DISTINCT b.* FROM books b
         LEFT JOIN commercial_book_details c ON b.id = c.book_id
         LEFT JOIN doujin_book_details d ON b.id = d.book_id
-        WHERE b.title LIKE '%' || :query || '%'
-           OR c.isbn  LIKE '%' || :query || '%'
-           OR d.isdn  LIKE '%' || :query || '%'
+        WHERE b.title    LIKE '%' || :query || '%'
+           OR b.subtitle LIKE '%' || :query || '%'
+           OR c.isbn     LIKE '%' || :query || '%'
+           OR d.isdn     LIKE '%' || :query || '%'
         ORDER BY b.id ASC
         """
     )

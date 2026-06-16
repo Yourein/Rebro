@@ -42,6 +42,7 @@ bookshelves
 | id             | INTEGER | PK, AUTOINCREMENT          | 本ID                                               |
 | bookshelf_id   | INTEGER | FK → bookshelves.id        | 所属する本棚                                       |
 | title          | TEXT    | NOT NULL                   | タイトル                                           |
+| subtitle       | TEXT    |                            | サブタイトル                                       |
 | thumbnail_path | TEXT    |                            | サムネイル画像のローカルパス（アプリ内ストレージ） |
 | book_type      | TEXT    | NOT NULL                   | 種別: `COMMERCIAL` / `DOUJIN`                      |
 | reading_status | TEXT    | NOT NULL, DEFAULT `UNREAD` | 読了状況（後述）                                   |
