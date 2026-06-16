@@ -258,7 +258,6 @@ val viewModelKoinModule = module { }
 ```kotlin
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.compose)
 }
 
 android {
@@ -284,7 +283,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
     buildFeatures {
-        compose = true
         buildConfig = true   // buildConfigField を使うのに必須
     }
 }
@@ -335,7 +333,6 @@ class ProductionApplication : BaseApplication() {
 ```kotlin
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.compose)
 }
 
 android {
@@ -356,7 +353,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
     buildFeatures {
-        compose = true
         buildConfig = true
     }
 }
@@ -477,13 +473,13 @@ class FakeBookRepository : BookRepository {
 
 ## 実装チェックリスト
 
-- [ ] `:core:application`（library）を作成し、`BaseApplication`・`MainActivity`・共通 Koin モジュールを集約
-- [ ] `BaseApplication.koinStarter()` を `protected open` で実装し、本番 Repository を含む全モジュールを登録
-- [ ] `BaseApplication.databaseName`（`protected open`、既定 `"rebro.db"`）で DB 名を override 可能にする
-- [ ] `:core:application` の Manifest にランチャー `MainActivity` を定義
-- [ ] `:app:production` を作成（`applicationId = net.yourein.rebro`、`buildConfigField DATABASE_NAME = rebro.db`、`buildConfig = true`、`ProductionApplication` で databaseName override）
-- [ ] `:app:development` を作成（`applicationId = net.yourein.rebro.dev`、`buildConfigField DATABASE_NAME = rebro-dev.db`、`buildConfig = true`、`DevelopmentApplication` で databaseName override + 空 `loadKoinModules`）
-- [ ] dev のアプリ名 `@string/app_name_dev`（`Rebro (Dev)`）を上書き
-- [ ] 既存 `:app` を削除し `settings.gradle.kts` を 3 モジュールへ再構成
-- [ ] 両アプリを並存インストールし、起動・別 DB になることを確認
+- [x] `:core:application`（library）を作成し、`BaseApplication`・`MainActivity`・共通 Koin モジュールを集約
+- [x] `BaseApplication.koinStarter()` を `protected open` で実装し、本番 Repository を含む全モジュールを登録
+- [x] `BaseApplication.databaseName`（`protected open`、既定 `"rebro.db"`）で DB 名を override 可能にする
+- [x] `:core:application` の Manifest にランチャー `MainActivity` を定義
+- [x] `:app:production` を作成（`applicationId = net.yourein.rebro`、`buildConfigField DATABASE_NAME = rebro.db`、`buildConfig = true`、`ProductionApplication` で databaseName override）
+- [x] `:app:development` を作成（`applicationId = net.yourein.rebro.dev`、`buildConfigField DATABASE_NAME = rebro-dev.db`、`buildConfig = true`、`DevelopmentApplication` で databaseName override + 空 `loadKoinModules`）
+- [x] dev のアプリ名 `@string/app_name_dev`（`Rebro (Dev)`）を上書き
+- [x] 既存 `:app` を削除し `settings.gradle.kts` を 3 モジュールへ再構成
+- [x] 両アプリの debug APK ビルドを確認（`assembleDebug` 成功・マージ後 Manifest で applicationId / Application / ランチャーを確認済み）。実機での並存インストール確認は未実施
 - [ ]（後追い）必要な画面からモックを `:app:development/mock/` に実装し `loadKoinModules` に登録

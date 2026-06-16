@@ -1,4 +1,4 @@
-package net.yourein.rebro
+package net.yourein.rebro.core.application
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity

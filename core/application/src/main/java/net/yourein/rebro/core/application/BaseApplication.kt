@@ -1,4 +1,4 @@
-package net.yourein.rebro
+package net.yourein.rebro.core.application
 
 import android.app.Application
 import androidx.room.Room
@@ -14,17 +14,23 @@ import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
 
-class RebroApplication : Application() {
+abstract class BaseApplication : Application() {
+
+    /**
+     * 使用する DB ファイル名。各アプリの Application が BuildConfig.DATABASE_NAME で override する。
+     * （未 override 時のフォールバックとして本番名を既定値に持つ）
+     */
+    protected open val databaseName: String = "rebro.db"
 
     override fun onCreate() {
         super.onCreate()
         koinStarter()
     }
 
-    private fun koinStarter() {
+    protected open fun koinStarter() {
         startKoin {
             androidLogger()
-            androidContext(this@RebroApplication)
+            androidContext(this@BaseApplication)
             modules(
                 listOf(
                     databaseKoinModule,
@@ -38,15 +44,15 @@ class RebroApplication : Application() {
 
     /**
      * DB・DAO などインフラ層の依存。
-     * AppDatabase はアプリ全体で1インスタンスだけ存在すればよいため single で保持し、
-     * 各 DAO はそこから取り出して提供する。
+     * AppDatabase はアプリ全体で1インスタンスだけ存在すればよいため single で保持し、各 DAO をそこから取り出す。
+     * DB 名を override 可能なよう databaseName を参照する形でインスタンスメンバとして持つ。
      */
     private val databaseKoinModule = module {
         single {
             Room.databaseBuilder(
                 androidContext(),
                 AppDatabase::class.java,
-                "rebro.db",
+                databaseName,
             ).build()
         }
         single { get<AppDatabase>().bookshelfDao() }
@@ -54,27 +60,17 @@ class RebroApplication : Application() {
         single { get<AppDatabase>().authorDao() }
     }
 
-    /**
-     * Repository 層。DAO を受け取り、interface 型として公開する。
-     */
     private val repositoryKoinModule = module {
         single<BookshelfRepository> { BookshelfRepositoryImpl(get()) }
         single<BookRepository> { BookRepositoryImpl(get()) }
         single<AuthorRepository> { AuthorRepositoryImpl(get()) }
     }
 
-    /**
-     * UseCase 層。今後 UseCase が増えたらここに追加する。
-     * 例: factory { SearchBooksUseCase(get()) }
-     */
     private val useCaseKoinModule = module {
+        
     }
 
-    /**
-     * ViewModel 層。画面ごとの ViewModel が増えたらここに追加する。
-     * `viewModel { ... }` DSL は koin-androidx-compose / koin-android が提供する。
-     * 例: viewModel { SearchTopViewModel(get()) }
-     */
     private val viewModelKoinModule = module {
+        
     }
 }
