@@ -35,6 +35,4 @@ data class Book(
     val bookType: BookType,
     @ColumnInfo(name = "reading_status", defaultValue = "UNREAD")
     val readingStatus: ReadingStatus = ReadingStatus.UNREAD,
-    @ColumnInfo(name = "memo")
-    val memo: String? = null,
 )
