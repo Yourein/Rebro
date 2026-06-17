@@ -8,6 +8,8 @@ import net.yourein.rebro.model.relation.BookWithAuthors
 import net.yourein.rebro.model.relation.BookWithDetail
 
 interface BookRepository {
+    fun getAllBooks(): Flow<List<BookWithDetail>>
+
     fun getBooksInBookshelf(bookshelfId: Long): Flow<List<Book>>
 
     /** 指定著者が書いた本を取得する（著者での絞り込み）。 */

@@ -12,6 +12,8 @@ import net.yourein.rebro.model.relation.BookWithDetail
 class BookRepositoryImpl(
     private val bookDao: BookDao,
 ) : BookRepository {
+    override fun getAllBooks(): Flow<List<BookWithDetail>> =
+        bookDao.getAllBooks()
 
     override fun getBooksInBookshelf(bookshelfId: Long): Flow<List<Book>> =
         bookDao.getBooksInBookshelf(bookshelfId)

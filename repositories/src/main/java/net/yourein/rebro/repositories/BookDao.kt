@@ -17,6 +17,10 @@ import net.yourein.rebro.model.relation.BookWithDetail
 
 @Dao
 interface BookDao {
+    @Transaction
+    @Query("SELECT * FROM books")
+    fun getAllBooks(): Flow<List<BookWithDetail>>
+
     @Query("SELECT * FROM books WHERE bookshelf_id = :bookshelfId ORDER BY id ASC")
     fun getBooksInBookshelf(bookshelfId: Long): Flow<List<Book>>
 
