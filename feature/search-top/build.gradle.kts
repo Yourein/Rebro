@@ -21,6 +21,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:resources"))
     implementation(project(":model"))
     implementation(project(":interfaces"))
 

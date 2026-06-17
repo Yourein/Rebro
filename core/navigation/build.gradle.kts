@@ -24,6 +24,8 @@ android {
 dependencies {
     implementation(project(":core:resources"))
 
+    implementation(project(":feature:search-top"))
+
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.navigation3.ui)
     implementation(libs.kotlinx.serialization.core)

@@ -29,6 +29,7 @@ import net.yourein.rebro.core.navigation.destinations.RegisterTop
 import net.yourein.rebro.core.navigation.destinations.SearchTop
 import net.yourein.rebro.core.resources.DrawableR
 import net.yourein.rebro.core.resources.RebroColor
+import net.yourein.rebro.feature.searchtop.SearchTopScreen
 
 /**
  * ボトムナビゲーションで相互に行き来できるトップレベルの遷移先。
@@ -90,7 +91,9 @@ fun RebroNavDisplay(
             modifier = Modifier.padding(innerPadding),
             onBack = { backStack.removeLastOrNull() },
             entryProvider = entryProvider {
-                entry<SearchTop> { PlaceholderScreen("SearchTop") }
+                entry<SearchTop> {
+                    SearchTopScreen()
+                }
                 entry<RegisterTop> { PlaceholderScreen("RegisterTop") }
                 entry<Bookshelfs> { PlaceholderScreen("Bookshelfs") }
                 entry<Authors> { PlaceholderScreen("Authors") }
