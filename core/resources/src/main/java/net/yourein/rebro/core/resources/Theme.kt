@@ -1,11 +1,9 @@
 package net.yourein.rebro.core.resources
 
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 
 /**
  * Rebro のブランドカラーに基づいた [androidx.compose.material3.ColorScheme]。
@@ -36,7 +34,6 @@ fun RebroTheme(
     ) {
         Surface(
             color = RebroColorScheme.background,
-            modifier = Modifier.fillMaxSize()
         ) {
             content()
         }
