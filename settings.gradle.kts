@@ -26,6 +26,7 @@ rootProject.name = "Rebro"
 include(":app:production")
 include(":app:development")
 include(":core:application")
+include(":core:compose")
 include(":model")
 include(":interfaces")
 include(":repositories")
@@ -38,4 +39,3 @@ include(":feature:authors")
 include(":feature:bookshelf-detail")
 include(":feature:book-detail")
 include(":feature:author-detail")
- 
