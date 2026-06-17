@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -135,6 +136,11 @@ private fun RebroBottomBar(
                     )
                 },
                 label = { Text(destination.label) },
+                colors = NavigationBarItemDefaults.colors(
+                    indicatorColor = RebroColor.Brand.copy(alpha = 0.3f),
+                    unselectedIconColor = RebroColor.TextSecondary,
+                    unselectedTextColor = RebroColor.TextSecondary,
+                ),
             )
         }
     }
