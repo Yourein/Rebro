@@ -44,10 +44,8 @@ import org.koin.androidx.compose.koinViewModel
 fun RegisterTopScreen(
     viewModel: RegisterTopViewModel = koinViewModel(),
 ) {
-    val bookCount by viewModel.bookCount.collectAsStateWithLifecycle()
     val lastResult by viewModel.lastResult.collectAsStateWithLifecycle()
     RegisterTopScreen(
-        bookCount = bookCount,
         lastResult = lastResult,
         onRegister = viewModel::registerBook,
         onRegisterRandom = viewModel::registerRandomBook,
@@ -56,7 +54,6 @@ fun RegisterTopScreen(
 
 @Composable
 internal fun RegisterTopScreen(
-    bookCount: Int,
     lastResult: String?,
     onRegister: (title: String, subtitle: String, authorNames: String, bookType: BookType, detail: String) -> Unit,
     onRegisterRandom: () -> Unit,
@@ -178,7 +175,6 @@ private val BookType.displayLabel: String
 private fun RegisterTopScreenPreview() {
     RebroTheme {
         RegisterTopScreen(
-            bookCount = 3,
             lastResult = "登録しました（bookId=3）：サンプル本 #3",
             onRegister = { _, _, _, _, _ -> },
             onRegisterRandom = {},

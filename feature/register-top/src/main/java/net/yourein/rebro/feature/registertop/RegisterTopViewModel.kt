@@ -35,7 +35,7 @@ class RegisterTopViewModel(
 ) : ViewModel() {
 
     /** 現在 DB に登録されている本の総数（デバッグ表示用）。 */
-    val bookCount: StateFlow<Int> = bookRepository.getAllBooks()
+    private val bookCount: StateFlow<Int> = bookRepository.getAllBooks()
         .map { it.size }
         .stateIn(
             scope = viewModelScope,
