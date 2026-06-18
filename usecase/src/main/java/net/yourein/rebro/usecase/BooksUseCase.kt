@@ -30,4 +30,11 @@ class BooksUseCase(
     fun searchBooks(query: String): Flow<List<BookUiModel>> =
         bookRepository.searchBooks(query)
             .map { books -> books.map { it.toUiModel() } }
+
+    /**
+     * 指定 ID の書籍を、詳細情報・著者まで含めた [BookUiModel] として取得する。
+     * 該当する書籍が存在しない場合は null を返す。
+     */
+    suspend fun getBook(bookId: Long): BookUiModel? =
+        bookRepository.getBookWithDetail(bookId)?.toUiModel()
 }

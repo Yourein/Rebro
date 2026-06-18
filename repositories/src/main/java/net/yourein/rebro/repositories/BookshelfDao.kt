@@ -16,6 +16,16 @@ interface BookshelfDao {
     @Query("SELECT * FROM bookshelves WHERE id = :bookshelfId")
     suspend fun getBookshelf(bookshelfId: Long): Bookshelf?
 
+    /** 指定 ID の書籍が属する本棚を取得する（書籍 → 本棚の逆引き）。 */
+    @Query(
+        """
+        SELECT bookshelves.* FROM bookshelves
+        INNER JOIN books ON books.bookshelf_id = bookshelves.id
+        WHERE books.id = :bookId
+        """
+    )
+    suspend fun getBookshelfByBook(bookId: Long): Bookshelf?
+
     @Insert
     suspend fun insertBookshelf(bookshelf: Bookshelf): Long
 

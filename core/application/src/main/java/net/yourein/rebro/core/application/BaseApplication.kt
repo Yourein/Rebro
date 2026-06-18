@@ -2,6 +2,7 @@ package net.yourein.rebro.core.application
 
 import android.app.Application
 import androidx.room.Room
+import net.yourein.rebro.feature.bookdetail.BookDetailViewModel
 import net.yourein.rebro.feature.registertop.RegisterTopViewModel
 import net.yourein.rebro.feature.search.SearchViewModel
 import net.yourein.rebro.feature.searchtop.SearchTopViewModel
@@ -13,6 +14,7 @@ import net.yourein.rebro.repositories.AuthorRepositoryImpl
 import net.yourein.rebro.repositories.BookRepositoryImpl
 import net.yourein.rebro.repositories.BookshelfRepositoryImpl
 import net.yourein.rebro.usecase.BooksUseCase
+import net.yourein.rebro.usecase.BookshelfUseCase
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -65,18 +67,20 @@ abstract class BaseApplication : Application() {
     }
 
     private val repositoryKoinModule = module {
-        single<BookshelfRepository> { BookshelfRepositoryImpl(get()) }
-        single<BookRepository> { BookRepositoryImpl(get()) }
-        single<AuthorRepository> { AuthorRepositoryImpl(get()) }
+        factory<BookshelfRepository> { BookshelfRepositoryImpl(get()) }
+        factory<BookRepository> { BookRepositoryImpl(get()) }
+        factory<AuthorRepository> { AuthorRepositoryImpl(get()) }
     }
 
     private val useCaseKoinModule = module {
         factory<BooksUseCase> { BooksUseCase(get()) }
+        factory<BookshelfUseCase> { BookshelfUseCase(get()) }
     }
 
     private val viewModelKoinModule = module {
         factory<SearchTopViewModel> { SearchTopViewModel(get()) }
         factory<SearchViewModel> { SearchViewModel(get()) }
+        factory<BookDetailViewModel> { (bookId: Long) -> BookDetailViewModel(bookId, get(), get()) }
         // 【デバッグ用】register-top 本実装までの臨時 ViewModel
         factory<RegisterTopViewModel> { RegisterTopViewModel(get(), get(), get()) }
     }

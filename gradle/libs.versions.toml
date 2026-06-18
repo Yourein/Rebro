@@ -11,10 +11,10 @@ composeBom = "2026.04.01"
 ksp = "2.3.9"
 room = "2.8.4"
 coroutines = "1.10.2"
-nav3Core = "1.1.2"
-lifecycleViewmodelNav3 = "2.11.0-rc01"
+nav3Core = "1.1.3"
+lifecycleViewmodelNav3 = "2.10.0" #2.11.0以降ではcompileSdk37が要求されるので、互換性が壊れるまで2.10.0で耐える
 kotlinxSerializationCore = "1.9.0"
-material3AdaptiveNav3 = "1.3.0-beta02"
+material3AdaptiveNav3 = "1.3.0-rc01"
 koin = "4.2.1"
 coil = "3.5.0"
 

@@ -1,5 +1,6 @@
 package net.yourein.rebro.core.navigation
 
+import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.SizeTransform
@@ -26,10 +27,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import net.yourein.rebro.core.navigation.destinations.AllAuthors
 import net.yourein.rebro.core.navigation.destinations.AllBooks
@@ -44,6 +47,7 @@ import net.yourein.rebro.core.navigation.destinations.Search
 import net.yourein.rebro.core.navigation.destinations.SearchTop
 import net.yourein.rebro.core.resources.DrawableR
 import net.yourein.rebro.core.resources.RebroColor
+import net.yourein.rebro.feature.bookdetail.BookDetailScreen
 import net.yourein.rebro.feature.registertop.RegisterTopScreen
 import net.yourein.rebro.feature.search.SearchScreen
 import net.yourein.rebro.feature.searchtop.SearchTopScreen
@@ -108,6 +112,10 @@ fun RebroNavDisplay(
             backStack = backStack,
             modifier = Modifier.padding(innerPadding),
             onBack = { backStack.removeLastOrNull() },
+            entryDecorators = listOf(
+                rememberSaveableStateHolderNavEntryDecorator(),
+                rememberViewModelStoreNavEntryDecorator(),
+            ),
             transitionSpec = { navFadeTransition() },
             popTransitionSpec = { navFadeTransition() },
             predictivePopTransitionSpec = { navFadeTransition() },
@@ -124,9 +132,17 @@ fun RebroNavDisplay(
                 entry<RegisterTop> { RegisterTopScreen() }
                 entry<Bookshelfs> { PlaceholderScreen("Bookshelfs") }
                 entry<Authors> { PlaceholderScreen("Authors") }
-                entry<BookshelfDetail> { PlaceholderScreen("BookshelfDetail") }
-                entry<BookDetail> { key -> PlaceholderScreen("BookDetail(bookId=${key.bookId})") }
-                entry<AuthorDetail> { PlaceholderScreen("AuthorDetail") }
+                entry<BookshelfDetail> { key -> PlaceholderScreen("BookshelfDetail(bookshelfId=${key.bookshelfId})") }
+                entry<BookDetail> { key ->
+                    Log.d("yourein", "$key")
+                    BookDetailScreen(
+                        bookId = key.bookId,
+                        navigateBack = { backStack.removeLastOrNull() },
+                        navigateToAuthorDetail = { authorName -> backStack.add(AuthorDetail(authorName)) },
+                        navigateToBookshelfDetail = { bookshelfId -> backStack.add(BookshelfDetail(bookshelfId)) },
+                    )
+                }
+                entry<AuthorDetail> { key -> PlaceholderScreen("AuthorDetail(authorName=${key.authorName})") }
                 entry<AllBooks> { PlaceholderScreen("AllBooks") }
                 entry<AllBookshelves> { PlaceholderScreen("AllBookshelves") }
                 entry<AllAuthors> { PlaceholderScreen("AllAuthors") }
