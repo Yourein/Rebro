@@ -29,6 +29,9 @@ class BookRepositoryImpl(
     override suspend fun getBookWithDetail(bookId: Long): BookWithDetailAndAuthors? =
         bookDao.getBookWithDetail(bookId)
 
+    override fun getRecentRegisteredBooks(): Flow<List<BookWithDetailAndAuthors>> =
+        bookDao.getRecentRegisteredBooks()
+
     override suspend fun addBook(book: Book): Long =
         bookDao.insertBook(book)
 

@@ -24,6 +24,8 @@ interface BookRepository {
 
     suspend fun getBookWithDetail(bookId: Long): BookWithDetailAndAuthors?
 
+    fun getRecentRegisteredBooks(): Flow<List<BookWithDetailAndAuthors>>
+
     suspend fun addBook(book: Book): Long
 
     /**

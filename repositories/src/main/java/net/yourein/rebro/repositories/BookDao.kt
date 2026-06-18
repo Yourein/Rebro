@@ -55,6 +55,20 @@ interface BookDao {
     )
     fun searchBooks(query: String): Flow<List<BookWithDetailAndAuthors>>
 
+    /**
+     * **登録** が新しい順に15件を取得する。
+     * SQLiteの自動生成idに依存していることに注意。
+     */
+    @Transaction
+    @Query(
+        """
+        SELECT b.* FROM books b
+        ORDER BY b.id DESC
+        LIMIT 15
+        """
+    )
+    fun getRecentRegisteredBooks(): Flow<List<BookWithDetailAndAuthors>>
+
     @Query("SELECT * FROM books WHERE id = :bookId")
     suspend fun getBook(bookId: Long): Book?
 

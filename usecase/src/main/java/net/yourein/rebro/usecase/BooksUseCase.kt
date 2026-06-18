@@ -15,7 +15,11 @@ import net.yourein.rebro.model.uimodel.toUiModel
 class BooksUseCase(
     private val bookRepository: BookRepository,
 ) {
-    operator fun invoke(): Flow<List<BookUiModel>> =
+    fun getAllBooks(): Flow<List<BookUiModel>> =
         bookRepository.getAllBooks()
+            .map { books -> books.map { it.toUiModel() } }
+
+    fun getRecentRegisteredBooks(): Flow<List<BookUiModel>> =
+        bookRepository.getRecentRegisteredBooks()
             .map { books -> books.map { it.toUiModel() } }
 }
