@@ -89,6 +89,21 @@ internal fun RegisterTopScreen(
 
         HorizontalDivider()
 
+        Text(
+            text = "Type",
+            fontSize = 14.sp,
+            lineHeight = 18.sp,
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            BookType.entries.forEach { type ->
+                FilterChip(
+                    selected = bookType == type,
+                    onClick = { bookType = type },
+                    label = { Text(type.displayLabel) },
+                )
+            }
+        }
+
         OutlinedTextField(
             value = title,
             onValueChange = { title = it },
@@ -111,16 +126,7 @@ internal fun RegisterTopScreen(
             modifier = Modifier.fillMaxWidth(),
         )
 
-        Text(text = "種別", fontSize = 14.sp)
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            BookType.entries.forEach { type ->
-                FilterChip(
-                    selected = bookType == type,
-                    onClick = { bookType = type },
-                    label = { Text(type.displayLabel) },
-                )
-            }
-        }
+
 
         OutlinedTextField(
             value = detail,
@@ -136,6 +142,12 @@ internal fun RegisterTopScreen(
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
         )
+
+        HorizontalDivider()
+
+        RegisterTopCoverImageSection()
+
+        HorizontalDivider()
 
         Button(
             onClick = {
@@ -166,8 +178,8 @@ internal fun RegisterTopScreen(
 
 private val BookType.displayLabel: String
     get() = when (this) {
-        BookType.COMMERCIAL -> "商業誌"
-        BookType.DOUJIN -> "同人誌"
+        BookType.COMMERCIAL -> "Commercial"
+        BookType.DOUJIN -> "Doujinshi (Indie)"
     }
 
 @Preview(showBackground = true)
