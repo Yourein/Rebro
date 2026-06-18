@@ -3,6 +3,8 @@ package net.yourein.rebro.feature.searchtop
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -57,23 +59,65 @@ fun SearchTopScreen(
     recentBooksState: LoadingState<List<BookUiModel>>,
     navigateToSearchScreen: () -> Unit,
 ) {
-    LazyColumn(
+    Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        stickyHeader {
-            SearchTopBar(
-                onClick = navigateToSearchScreen,
-                modifier = Modifier
-                    .background(RebroColor.Background)
-                    .padding(all = 16.dp)
-                    .fillMaxWidth()
-            )
-        }
+        SearchTopBar(
+            onClick = navigateToSearchScreen,
+            modifier = Modifier
+                .background(RebroColor.Background)
+                .padding(start = 16.dp, top = 16.dp, end = 16.dp)
+                .fillMaxWidth()
+        )
 
-        when(recentBooksState) {
-            is LoadingState.Success -> {
-                val books = recentBooksState.value
-                if (books.isEmpty()) {
+        LazyColumn(
+            contentPadding = PaddingValues(top = 16.dp),
+            modifier = Modifier.fillMaxSize()
+        ) {
+            when(recentBooksState) {
+                is LoadingState.Success -> {
+                    val books = recentBooksState.value
+                    if (books.isEmpty()) {
+                        item {
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 16.dp)
+                            ) {
+                                Text(
+                                    text = "No Recent Books."
+                                )
+                            }
+                        }
+                    } else {
+                        items(books) { book ->
+                            val subtitle = book.subtitle
+                            val displaySubtitle = if (!subtitle.isNullOrEmpty()) {
+                                " $subtitle"
+                            } else {
+                                ""
+                            }
+                            BookListItem(
+                                title = book.title + displaySubtitle,
+                                author = book.displayAuthor,
+                                coverImageUrl = book.coverImageUrl,
+                                onClick = {},
+                                modifier = Modifier
+                                    .padding(horizontal = 16.dp)
+                                    .fillMaxWidth()
+                            )
+
+                            if (book != books.last()) {
+                                HorizontalDivider(
+                                    color = Color.Gray,
+                                    thickness = 1.dp
+                                )
+                            }
+                        }
+                    }
+                }
+                is LoadingState.Error -> {
                     item {
                         Box(
                             contentAlignment = Alignment.Center,
@@ -82,51 +126,21 @@ fun SearchTopScreen(
                                 .padding(vertical = 16.dp)
                         ) {
                             Text(
-                                text = "No Recent Books."
+                                text = "Error!"
                             )
                         }
                     }
-                } else {
-                    items(books) { book ->
-                        BookListItem(
-                            title = book.title + " " + book.subtitle,
-                            author = book.displayAuthor,
-                            coverImageUrl = book.coverImageUrl,
-                            onClick = {},
+                }
+                is LoadingState.Loading -> {
+                    item {
+                        Box(
+                            contentAlignment = Alignment.Center,
                             modifier = Modifier
-                                .padding(horizontal = 16.dp)
                                 .fillMaxWidth()
-                        )
-                        HorizontalDivider(
-                            color = Color.Gray,
-                            thickness = 1.dp
-                        )
-                    }
-                }
-            }
-            is LoadingState.Error -> {
-                item {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 16.dp)
-                    ) {
-                        Text(
-                            text = "Error!"
-                        )
-                    }
-                }
-            }
-            is LoadingState.Loading -> {
-                item {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 16.dp)
-                    ) {
-                        CircularProgressIndicator()
+                                .padding(vertical = 16.dp)
+                        ) {
+                            CircularProgressIndicator()
+                        }
                     }
                 }
             }
