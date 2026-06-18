@@ -9,6 +9,7 @@ import net.yourein.rebro.repositories.AppDatabase
 import net.yourein.rebro.repositories.AuthorRepositoryImpl
 import net.yourein.rebro.repositories.BookRepositoryImpl
 import net.yourein.rebro.repositories.BookshelfRepositoryImpl
+import net.yourein.rebro.usecase.BooksUseCase
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -67,7 +68,7 @@ abstract class BaseApplication : Application() {
     }
 
     private val useCaseKoinModule = module {
-        
+        factory<BooksUseCase> { BooksUseCase(get()) }
     }
 
     private val viewModelKoinModule = module {

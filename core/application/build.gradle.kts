@@ -26,6 +26,7 @@ dependencies {
     implementation(project(":model"))
     implementation(project(":interfaces"))
     implementation(project(":repositories"))   // 本番 Repository の実 Impl を登録するため
+    implementation(project(":usecase"))
 
     implementation(libs.androidx.room.runtime)  // AppDatabase を構築するため
 
