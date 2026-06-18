@@ -1,0 +1,227 @@
+package net.yourein.rebro.feature.bookdetail
+
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
+import net.yourein.rebro.core.resources.RebroColor
+import net.yourein.rebro.model.ReadingStatus
+import net.yourein.rebro.model.entity.Bookshelf
+import net.yourein.rebro.model.uimodel.BookUiModel
+
+@Composable
+internal fun BookDetailSuccessScreen(
+    book: BookUiModel,
+    bookshelf: Bookshelf?,
+    navigateToAuthorDetail: (authorName: String) -> Unit,
+    navigateToBookshelfDetail: (bookshelfId: Long) -> Unit,
+) {
+    val bottomPadding = WindowInsets.safeDrawing.asPaddingValues().calculateBottomPadding()
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = bottomPadding + 16.dp)
+    ) {
+        AsyncImage(
+            model = book.coverImageUrl,
+            contentDescription = null,
+            contentScale = ContentScale.Fit,
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .sizeIn(maxWidth = 300.dp, maxHeight = 300.dp)
+                .fillMaxSize()
+                .clip(RoundedCornerShape(8.dp))
+        )
+
+        Spacer(modifier = Modifier.size(24.dp))
+
+        Text(
+            text = book.title,
+            fontSize = 24.sp,
+            lineHeight = 30.sp,
+            fontWeight = FontWeight.Bold,
+            color = RebroColor.TextPrimary,
+        )
+
+        val subtitle = book.subtitle
+        if (!subtitle.isNullOrBlank()) {
+            Spacer(modifier = Modifier.size(4.dp))
+            Text(
+                text = subtitle,
+                fontSize = 16.sp,
+                lineHeight = 20.sp,
+                color = RebroColor.TextSecondary,
+            )
+        }
+
+        Spacer(modifier = Modifier.size(24.dp))
+
+        AuthorsField(
+            authors = book.authors,
+            onAuthorClick = navigateToAuthorDetail,
+        )
+
+        if (bookshelf != null) {
+            HorizontalDivider(
+                color = Color.Gray,
+                thickness = 1.dp,
+                modifier = Modifier.padding(vertical = 16.dp)
+            )
+            FieldLabel(text = "Bookshelf")
+            LinkText(
+                text = bookshelf.name,
+                onClick = { navigateToBookshelfDetail(bookshelf.id) }
+            )
+        }
+
+        HorizontalDivider(
+            color = Color.Gray,
+            thickness = 1.dp,
+            modifier = Modifier.padding(vertical = 16.dp)
+        )
+        DetailField(label = "Reading Status", value = book.readingStatus.label)
+
+        when (book) {
+            is BookUiModel.Commercial -> {
+                HorizontalDivider(
+                    color = Color.Gray,
+                    thickness = 1.dp,
+                    modifier = Modifier.padding(vertical = 16.dp)
+                )
+                DetailField(label = "Publisher", value = book.publisher.orPlaceholder())
+                HorizontalDivider(
+                    color = Color.Gray,
+                    thickness = 1.dp,
+                    modifier = Modifier.padding(vertical = 16.dp)
+                )
+                DetailField(label = "ISBN", value = book.isbn.orPlaceholder())
+            }
+
+            is BookUiModel.Doujin -> {
+                HorizontalDivider(
+                    color = Color.Gray,
+                    thickness = 1.dp,
+                    modifier = Modifier.padding(vertical = 16.dp)
+                )
+                DetailField(label = "Circle", value = book.circleName.orPlaceholder())
+                HorizontalDivider(
+                    color = Color.Gray,
+                    thickness = 1.dp,
+                    modifier = Modifier.padding(vertical = 16.dp)
+                )
+                DetailField(label = "ISDN", value = book.isdn.orPlaceholder())
+            }
+        }
+    }
+}
+
+/**
+ * 著者の一覧。各著者名は、その著者の作品一覧へ遷移できるリンクとして表示する。
+ */
+@Composable
+private fun AuthorsField(
+    authors: List<String>,
+    onAuthorClick: (authorName: String) -> Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        FieldLabel(text = "Author")
+        if (authors.isEmpty()) {
+            Text(
+                text = PLACEHOLDER,
+                fontSize = 16.sp,
+                lineHeight = 20.sp,
+                color = RebroColor.TextPrimary,
+            )
+        } else {
+            authors.forEach { author ->
+                LinkText(
+                    text = author,
+                    onClick = { onAuthorClick(author) },
+                )
+            }
+        }
+    }
+}
+
+/** 別画面へ遷移できることを示す、強調色のクリック可能なテキスト。 */
+@Composable
+private fun LinkText(
+    text: String,
+    onClick: () -> Unit,
+) {
+    Text(
+        text = text,
+        fontSize = 16.sp,
+        lineHeight = 20.sp,
+        fontWeight = FontWeight.Bold,
+        color = RebroColor.Highlight,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(vertical = 4.dp)
+    )
+}
+
+@Composable
+private fun DetailField(
+    label: String,
+    value: String,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        FieldLabel(text = label)
+        Text(
+            text = value,
+            fontSize = 16.sp,
+            lineHeight = 20.sp,
+            color = RebroColor.TextPrimary,
+        )
+    }
+}
+
+@Composable
+private fun FieldLabel(text: String) {
+    Text(
+        text = text,
+        fontSize = 12.sp,
+        lineHeight = 16.sp,
+        color = RebroColor.TextSecondary,
+    )
+}
+
+/** 値が未設定のときに表示するプレースホルダ。 */
+private const val PLACEHOLDER = "—"
+
+private fun String?.orPlaceholder(): String =
+    if (isNullOrBlank()) PLACEHOLDER else this
+
+/** 読書状態を画面表示用のラベルへ変換する。 */
+private val ReadingStatus.label: String
+    get() = when (this) {
+        ReadingStatus.UNREAD -> "Unread"
+        ReadingStatus.READING -> "Reading"
+        ReadingStatus.COMPLETED -> "Completed"
+    }
