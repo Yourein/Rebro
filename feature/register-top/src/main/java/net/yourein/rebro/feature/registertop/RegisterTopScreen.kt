@@ -1,5 +1,8 @@
 package net.yourein.rebro.feature.registertop
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -45,18 +48,41 @@ fun RegisterTopScreen(
     viewModel: RegisterTopViewModel = koinViewModel(),
 ) {
     val lastResult by viewModel.lastResult.collectAsStateWithLifecycle()
+    val coverImagePath by viewModel.coverImagePath.collectAsStateWithLifecycle()
+    val isDownloading by viewModel.isDownloading.collectAsStateWithLifecycle()
+
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+    ) { uri ->
+        uri?.let { viewModel.saveCoverImageFromPicker(it) }
+    }
+
     RegisterTopScreen(
         lastResult = lastResult,
+        coverImagePath = coverImagePath,
+        isDownloading = isDownloading,
         onRegister = viewModel::registerBook,
         onRegisterRandom = viewModel::registerRandomBook,
+        onPickFromGallery = {
+            photoPickerLauncher.launch(
+                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+            )
+        },
+        onUrlSpecified = viewModel::downloadCoverImage,
+        onClearImage = viewModel::clearCoverImage,
     )
 }
 
 @Composable
 internal fun RegisterTopScreen(
     lastResult: String?,
+    coverImagePath: String?,
+    isDownloading: Boolean,
     onRegister: (title: String, subtitle: String, authorNames: String, bookType: BookType, detail: String) -> Unit,
     onRegisterRandom: () -> Unit,
+    onPickFromGallery: () -> Unit,
+    onUrlSpecified: (String) -> Unit,
+    onClearImage: () -> Unit,
 ) {
     var title by remember { mutableStateOf("") }
     var subtitle by remember { mutableStateOf("") }
@@ -145,7 +171,13 @@ internal fun RegisterTopScreen(
 
         HorizontalDivider()
 
-        RegisterTopCoverImageSection()
+        RegisterTopCoverImageSection(
+            coverImagePath = coverImagePath,
+            isDownloading = isDownloading,
+            onPickFromGallery = onPickFromGallery,
+            onUrlSpecified = onUrlSpecified,
+            onClearImage = onClearImage,
+        )
 
         HorizontalDivider()
 
@@ -188,8 +220,13 @@ private fun RegisterTopScreenPreview() {
     RebroTheme {
         RegisterTopScreen(
             lastResult = "登録しました（bookId=3）：サンプル本 #3",
+            coverImagePath = null,
+            isDownloading = false,
             onRegister = { _, _, _, _, _ -> },
             onRegisterRandom = {},
+            onPickFromGallery = {},
+            onUrlSpecified = {},
+            onClearImage = {},
         )
     }
 }

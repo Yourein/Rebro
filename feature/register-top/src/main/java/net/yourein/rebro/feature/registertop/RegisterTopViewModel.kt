@@ -1,7 +1,10 @@
 package net.yourein.rebro.feature.registertop
 
+import android.app.Application
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -19,6 +22,9 @@ import net.yourein.rebro.model.entity.Book
 import net.yourein.rebro.model.entity.Bookshelf
 import net.yourein.rebro.model.entity.CommercialBookDetail
 import net.yourein.rebro.model.entity.DoujinBookDetail
+import java.io.File
+import java.net.URL
+import java.util.UUID
 
 /**
  * 【デバッグ用】登録トップ画面の ViewModel。
@@ -29,6 +35,7 @@ import net.yourein.rebro.model.entity.DoujinBookDetail
  * 専用 UseCase は設けず Repository を直接叩いている。
  */
 class RegisterTopViewModel(
+    private val application: Application,
     private val bookRepository: BookRepository,
     private val authorRepository: AuthorRepository,
     private val bookshelfRepository: BookshelfRepository,
@@ -47,6 +54,60 @@ class RegisterTopViewModel(
 
     /** 直近の登録操作の結果メッセージ（成功・失敗どちらも）。 */
     val lastResult: StateFlow<String?> = _lastResult.asStateFlow()
+
+    private val _coverImagePath = MutableStateFlow<String?>(null)
+    val coverImagePath: StateFlow<String?> = _coverImagePath.asStateFlow()
+
+    private val _isDownloading = MutableStateFlow(false)
+    val isDownloading: StateFlow<Boolean> = _isDownloading.asStateFlow()
+
+    fun saveCoverImageFromPicker(uri: Uri) {
+        viewModelScope.launch(Dispatchers.IO) {
+            deletePreviousCoverFile()
+            runCatching {
+                val file = createCoverFile()
+                application.contentResolver.openInputStream(uri)?.use { input ->
+                    file.outputStream().use { output ->
+                        input.copyTo(output)
+                    }
+                } ?: throw IllegalStateException("Cannot open input stream")
+                file.absolutePath
+            }.onSuccess { path ->
+                _coverImagePath.value = path
+            }.onFailure { e ->
+                _lastResult.value = "画像の保存に失敗しました：${e.message}"
+            }
+        }
+    }
+
+    fun downloadCoverImage(url: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _isDownloading.value = true
+            deletePreviousCoverFile()
+            runCatching {
+                val file = createCoverFile()
+                URL(url).openStream().use { input ->
+                    file.outputStream().use { output ->
+                        input.copyTo(output)
+                    }
+                }
+                file.absolutePath
+            }.onSuccess { path ->
+                _coverImagePath.value = path
+            }.onFailure { e ->
+                _lastResult.value = "画像のダウンロードに失敗しました：${e.message}"
+            }
+            _isDownloading.value = false
+        }
+    }
+
+    fun clearCoverImage() {
+        val path = _coverImagePath.value ?: return
+        _coverImagePath.value = null
+        viewModelScope.launch(Dispatchers.IO) {
+            File(path).delete()
+        }
+    }
 
     /**
      * 入力内容から本を1冊登録する。
@@ -78,6 +139,7 @@ class RegisterTopViewModel(
                         title = trimmedTitle,
                         subtitle = subtitle.trim().ifEmpty { null },
                         bookType = bookType,
+                        thumbnailPath = _coverImagePath.value,
                     ),
                     authorIds = authorIds,
                 )
@@ -99,6 +161,7 @@ class RegisterTopViewModel(
                 bookId
             }.onSuccess { bookId ->
                 _lastResult.value = "登録しました（bookId=$bookId）：$trimmedTitle"
+                _coverImagePath.value = null
             }.onFailure { e ->
                 _lastResult.value = "登録に失敗しました：${e.message}"
             }
@@ -116,6 +179,16 @@ class RegisterTopViewModel(
             bookType = if (isCommercial) BookType.COMMERCIAL else BookType.DOUJIN,
             detail = if (isCommercial) "サンプル出版社" else "サンプルサークル",
         )
+    }
+
+    private fun deletePreviousCoverFile() {
+        _coverImagePath.value?.let { File(it).delete() }
+    }
+
+    private fun createCoverFile(): File {
+        val dir = File(application.filesDir, COVER_IMAGES_DIR)
+        dir.mkdirs()
+        return File(dir, "${UUID.randomUUID()}.jpg")
     }
 
     /**
@@ -142,5 +215,6 @@ class RegisterTopViewModel(
 
     private companion object {
         const val DEBUG_BOOKSHELF_NAME = "デバッグ本棚"
+        const val COVER_IMAGES_DIR = "cover_images"
     }
 }

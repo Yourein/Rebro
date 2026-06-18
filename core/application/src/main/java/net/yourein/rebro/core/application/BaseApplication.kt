@@ -15,6 +15,7 @@ import net.yourein.rebro.repositories.BookRepositoryImpl
 import net.yourein.rebro.repositories.BookshelfRepositoryImpl
 import net.yourein.rebro.usecase.BooksUseCase
 import net.yourein.rebro.usecase.BookshelfUseCase
+import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -82,6 +83,6 @@ abstract class BaseApplication : Application() {
         factory<SearchViewModel> { SearchViewModel(get()) }
         factory<BookDetailViewModel> { (bookId: Long) -> BookDetailViewModel(bookId, get(), get()) }
         // 【デバッグ用】register-top 本実装までの臨時 ViewModel
-        factory<RegisterTopViewModel> { RegisterTopViewModel(get(), get(), get()) }
+        factory<RegisterTopViewModel> { RegisterTopViewModel(androidApplication(), get(), get(), get()) }
     }
 }
