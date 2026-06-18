@@ -12,14 +12,13 @@ import net.yourein.rebro.model.entity.Book
 import net.yourein.rebro.model.entity.BookAuthor
 import net.yourein.rebro.model.entity.CommercialBookDetail
 import net.yourein.rebro.model.entity.DoujinBookDetail
-import net.yourein.rebro.model.relation.BookWithAuthors
-import net.yourein.rebro.model.relation.BookWithDetail
+import net.yourein.rebro.model.relation.BookWithDetailAndAuthors
 
 @Dao
 interface BookDao {
     @Transaction
     @Query("SELECT * FROM books")
-    fun getAllBooks(): Flow<List<BookWithDetail>>
+    fun getAllBooks(): Flow<List<BookWithDetailAndAuthors>>
 
     @Query("SELECT * FROM books WHERE bookshelf_id = :bookshelfId ORDER BY id ASC")
     fun getBooksInBookshelf(bookshelfId: Long): Flow<List<Book>>
@@ -54,18 +53,14 @@ interface BookDao {
         ORDER BY b.id ASC
         """
     )
-    fun searchBooks(query: String): Flow<List<BookWithDetail>>
+    fun searchBooks(query: String): Flow<List<BookWithDetailAndAuthors>>
 
     @Query("SELECT * FROM books WHERE id = :bookId")
     suspend fun getBook(bookId: Long): Book?
 
     @Transaction
     @Query("SELECT * FROM books WHERE id = :bookId")
-    suspend fun getBookWithAuthors(bookId: Long): BookWithAuthors?
-
-    @Transaction
-    @Query("SELECT * FROM books WHERE id = :bookId")
-    suspend fun getBookWithDetail(bookId: Long): BookWithDetail?
+    suspend fun getBookWithDetail(bookId: Long): BookWithDetailAndAuthors?
 
     @Insert
     suspend fun insertBook(book: Book): Long

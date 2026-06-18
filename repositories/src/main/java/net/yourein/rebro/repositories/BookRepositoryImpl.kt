@@ -6,13 +6,12 @@ import net.yourein.rebro.model.entity.Book
 import net.yourein.rebro.model.entity.BookAuthor
 import net.yourein.rebro.model.entity.CommercialBookDetail
 import net.yourein.rebro.model.entity.DoujinBookDetail
-import net.yourein.rebro.model.relation.BookWithAuthors
-import net.yourein.rebro.model.relation.BookWithDetail
+import net.yourein.rebro.model.relation.BookWithDetailAndAuthors
 
 class BookRepositoryImpl(
     private val bookDao: BookDao,
 ) : BookRepository {
-    override fun getAllBooks(): Flow<List<BookWithDetail>> =
+    override fun getAllBooks(): Flow<List<BookWithDetailAndAuthors>> =
         bookDao.getAllBooks()
 
     override fun getBooksInBookshelf(bookshelfId: Long): Flow<List<Book>> =
@@ -21,16 +20,13 @@ class BookRepositoryImpl(
     override fun getBooksByAuthor(authorId: Long): Flow<List<Book>> =
         bookDao.getBooksByAuthor(authorId)
 
-    override fun searchBooks(query: String): Flow<List<BookWithDetail>> =
+    override fun searchBooks(query: String): Flow<List<BookWithDetailAndAuthors>> =
         bookDao.searchBooks(query)
 
     override suspend fun getBook(bookId: Long): Book? =
         bookDao.getBook(bookId)
 
-    override suspend fun getBookWithAuthors(bookId: Long): BookWithAuthors? =
-        bookDao.getBookWithAuthors(bookId)
-
-    override suspend fun getBookWithDetail(bookId: Long): BookWithDetail? =
+    override suspend fun getBookWithDetail(bookId: Long): BookWithDetailAndAuthors? =
         bookDao.getBookWithDetail(bookId)
 
     override suspend fun addBook(book: Book): Long =

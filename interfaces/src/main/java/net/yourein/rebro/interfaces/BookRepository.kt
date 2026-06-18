@@ -4,11 +4,10 @@ import kotlinx.coroutines.flow.Flow
 import net.yourein.rebro.model.entity.Book
 import net.yourein.rebro.model.entity.CommercialBookDetail
 import net.yourein.rebro.model.entity.DoujinBookDetail
-import net.yourein.rebro.model.relation.BookWithAuthors
-import net.yourein.rebro.model.relation.BookWithDetail
+import net.yourein.rebro.model.relation.BookWithDetailAndAuthors
 
 interface BookRepository {
-    fun getAllBooks(): Flow<List<BookWithDetail>>
+    fun getAllBooks(): Flow<List<BookWithDetailAndAuthors>>
 
     fun getBooksInBookshelf(bookshelfId: Long): Flow<List<Book>>
 
@@ -19,13 +18,11 @@ interface BookRepository {
      * 書名・ISBN・ISDN を横断して曖昧検索する。
      * 入力がタイトルか管理番号かを呼び出し側で判別する必要はない。
      */
-    fun searchBooks(query: String): Flow<List<BookWithDetail>>
+    fun searchBooks(query: String): Flow<List<BookWithDetailAndAuthors>>
 
     suspend fun getBook(bookId: Long): Book?
 
-    suspend fun getBookWithAuthors(bookId: Long): BookWithAuthors?
-
-    suspend fun getBookWithDetail(bookId: Long): BookWithDetail?
+    suspend fun getBookWithDetail(bookId: Long): BookWithDetailAndAuthors?
 
     suspend fun addBook(book: Book): Long
 
