@@ -5,6 +5,8 @@ import kotlinx.serialization.Serializable
 
 /**
  * 書籍詳細画面 への遷移先。
+ *
+ * @param bookId 表示する書籍の ID。
  */
 @Serializable
-data object BookDetail : NavKey
+data class BookDetail(val bookId: Long) : NavKey

@@ -1,6 +1,11 @@
 package net.yourein.rebro.core.navigation
 
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -96,6 +101,9 @@ fun RebroNavDisplay(
             backStack = backStack,
             modifier = Modifier.padding(innerPadding),
             onBack = { backStack.removeLastOrNull() },
+            transitionSpec = { navFadeTransition() },
+            popTransitionSpec = { navFadeTransition() },
+            predictivePopTransitionSpec = { navFadeTransition() },
             entryProvider = entryProvider {
                 entry<SearchTop> {
                     SearchTopScreen(
@@ -103,14 +111,14 @@ fun RebroNavDisplay(
                         navigateToAllBooks = { backStack.add(AllBooks) },
                         navigateToAllBookshelves = { backStack.add(AllBookshelves) },
                         navigateToAllAuthors = { backStack.add(AllAuthors) },
-                        navigateToBookDetail = { backStack.add(BookDetail) },
+                        navigateToBookDetail = { bookId -> backStack.add(BookDetail(bookId)) },
                     )
                 }
                 entry<RegisterTop> { RegisterTopScreen() }
                 entry<Bookshelfs> { PlaceholderScreen("Bookshelfs") }
                 entry<Authors> { PlaceholderScreen("Authors") }
                 entry<BookshelfDetail> { PlaceholderScreen("BookshelfDetail") }
-                entry<BookDetail> { PlaceholderScreen("BookDetail") }
+                entry<BookDetail> { key -> PlaceholderScreen("BookDetail(bookId=${key.bookId})") }
                 entry<AuthorDetail> { PlaceholderScreen("AuthorDetail") }
                 entry<AllBooks> { PlaceholderScreen("AllBooks") }
                 entry<AllBookshelves> { PlaceholderScreen("AllBookshelves") }
@@ -160,6 +168,20 @@ private fun RebroBottomBar(
         }
     }
 }
+
+/** 画面遷移のフェードに用いる時間（ミリ秒）。既定より短くして遷移を素早く見せる。 */
+private const val NavTransitionDurationMillis = 200
+
+/**
+ * [NavDisplay] の各遷移で共通利用する、短いクロスフェード。
+ * 入り・出ともに [NavTransitionDurationMillis] の [tween] で揃える。
+ */
+private fun navFadeTransition(): ContentTransform =
+    ContentTransform(
+        targetContentEnter = fadeIn(tween(NavTransitionDurationMillis)),
+        initialContentExit = fadeOut(tween(NavTransitionDurationMillis)),
+        sizeTransform = SizeTransform { _, _ -> tween(NavTransitionDurationMillis) },
+    )
 
 /**
  * feature 画面が未実装の destination 用の仮表示。
