@@ -22,4 +22,12 @@ class BooksUseCase(
     fun getRecentRegisteredBooks(): Flow<List<BookUiModel>> =
         bookRepository.getRecentRegisteredBooks()
             .map { books -> books.map { it.toUiModel() } }
+
+    /**
+     * 書名・ISBN・ISDN を横断した曖昧検索の結果を [BookUiModel] のリストとして購読する。
+     * 入力がタイトルか管理番号かの判別は Repository 側に委ねる。
+     */
+    fun searchBooks(query: String): Flow<List<BookUiModel>> =
+        bookRepository.searchBooks(query)
+            .map { books -> books.map { it.toUiModel() } }
 }

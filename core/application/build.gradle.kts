@@ -28,6 +28,7 @@ dependencies {
     implementation(project(":repositories"))   // 本番 Repository の実 Impl を登録するため
     implementation(project(":usecase"))
 
+    implementation(project(":feature:search"))
     implementation(project(":feature:search-top"))
     implementation(project(":feature:register-top"))
 

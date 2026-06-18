@@ -3,6 +3,7 @@ package net.yourein.rebro.core.application
 import android.app.Application
 import androidx.room.Room
 import net.yourein.rebro.feature.registertop.RegisterTopViewModel
+import net.yourein.rebro.feature.search.SearchViewModel
 import net.yourein.rebro.feature.searchtop.SearchTopViewModel
 import net.yourein.rebro.interfaces.AuthorRepository
 import net.yourein.rebro.interfaces.BookRepository
@@ -75,6 +76,7 @@ abstract class BaseApplication : Application() {
 
     private val viewModelKoinModule = module {
         factory<SearchTopViewModel> { SearchTopViewModel(get()) }
+        factory<SearchViewModel> { SearchViewModel(get()) }
         // 【デバッグ用】register-top 本実装までの臨時 ViewModel
         factory<RegisterTopViewModel> { RegisterTopViewModel(get(), get(), get()) }
     }

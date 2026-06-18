@@ -7,9 +7,14 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -40,6 +45,7 @@ import net.yourein.rebro.core.navigation.destinations.SearchTop
 import net.yourein.rebro.core.resources.DrawableR
 import net.yourein.rebro.core.resources.RebroColor
 import net.yourein.rebro.feature.registertop.RegisterTopScreen
+import net.yourein.rebro.feature.search.SearchScreen
 import net.yourein.rebro.feature.searchtop.SearchTopScreen
 
 /**
@@ -82,7 +88,6 @@ fun RebroNavDisplay(
 ) {
     val currentKey = backStack.lastOrNull()
     Scaffold(
-        modifier = modifier,
         bottomBar = {
             if (TopLevelDestination.entries.any { it.route == currentKey }) {
                 RebroBottomBar(
@@ -96,6 +101,8 @@ fun RebroNavDisplay(
                 )
             }
         },
+        contentWindowInsets = WindowInsets(0),
+        modifier = modifier
     ) { innerPadding ->
         NavDisplay(
             backStack = backStack,
@@ -123,7 +130,11 @@ fun RebroNavDisplay(
                 entry<AllBooks> { PlaceholderScreen("AllBooks") }
                 entry<AllBookshelves> { PlaceholderScreen("AllBookshelves") }
                 entry<AllAuthors> { PlaceholderScreen("AllAuthors") }
-                entry<Search> { PlaceholderScreen("Search") }
+                entry<Search> {
+                    SearchScreen(
+                        navigateToBookDetail = { bookId -> backStack.add(BookDetail(bookId)) },
+                    )
+                }
             },
         )
     }
@@ -144,8 +155,12 @@ private fun RebroBottomBar(
     modifier: Modifier = Modifier,
 ) {
     NavigationBar(
-        modifier = modifier,
         containerColor = RebroColor.Background,
+        modifier = modifier
+            .windowInsetsPadding(
+                WindowInsets.safeDrawing
+                    .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
+            )
     ) {
         TopLevelDestination.entries.forEach { destination ->
             NavigationBarItem(
