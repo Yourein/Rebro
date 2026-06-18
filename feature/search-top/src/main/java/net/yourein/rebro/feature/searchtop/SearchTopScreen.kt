@@ -25,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -45,12 +46,17 @@ fun SearchTopScreen(
     navigateToAllBooks: () -> Unit,
     navigateToAllBookshelves: () -> Unit,
     navigateToAllAuthors: () -> Unit,
+    navigateToBookDetail: (bookId: Long) -> Unit,
     viewModel: SearchTopViewModel = koinViewModel(),
 ) {
     val recentBooks by viewModel.recentBooksState.collectAsStateWithLifecycle()
     SearchTopScreen(
         recentBooksState = recentBooks,
-        navigateToSearchScreen = {},
+        navigateToSearchScreen = navigateToSearchScreen,
+        navigateToAllBooks = navigateToAllBooks,
+        navigateToAllBookshelves = navigateToAllBookshelves,
+        navigateToAllAuthors = navigateToAllAuthors,
+        navigateToBookDetail = navigateToBookDetail,
     )
 }
 
@@ -58,6 +64,10 @@ fun SearchTopScreen(
 fun SearchTopScreen(
     recentBooksState: LoadingState<List<BookUiModel>>,
     navigateToSearchScreen: () -> Unit,
+    navigateToAllBooks: () -> Unit,
+    navigateToAllBookshelves: () -> Unit,
+    navigateToAllAuthors: () -> Unit,
+    navigateToBookDetail: (bookId: Long) -> Unit,
 ) {
     Column(
         modifier = Modifier.fillMaxSize()
@@ -74,6 +84,54 @@ fun SearchTopScreen(
             contentPadding = PaddingValues(top = 16.dp),
             modifier = Modifier.fillMaxSize()
         ) {
+            item {
+                Spacer(modifier = Modifier.size(8.dp))
+                NavigatorItem(
+                    text = "Books",
+                    icon = painterResource(DrawableR.book_4_24dp_fill),
+                    onClick = navigateToAllBooks,
+                )
+                HorizontalDivider(
+                    color = Color.Gray,
+                    thickness = 1.dp,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+            }
+
+            item {
+                NavigatorItem(
+                    text = "Bookshelves",
+                    icon = painterResource(DrawableR.shelves_24dp_fill),
+                    onClick = navigateToAllBookshelves,
+                )
+                HorizontalDivider(
+                    color = Color.Gray,
+                    thickness = 1.dp,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+            }
+
+            item {
+                NavigatorItem(
+                    text = "Authors",
+                    icon = painterResource(DrawableR.article_person_24dp_fill),
+                    onClick = navigateToAllAuthors,
+                )
+                Spacer(modifier = Modifier.size(8.dp))
+            }
+
+            stickyHeader {
+                Text(
+                    text = "Recently Added Books",
+                    fontSize = 20.sp,
+                    lineHeight = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .background(RebroColor.Background)
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                )
+            }
             when(recentBooksState) {
                 is LoadingState.Success -> {
                     val books = recentBooksState.value
@@ -102,7 +160,7 @@ fun SearchTopScreen(
                                 title = book.title + displaySubtitle,
                                 author = book.displayAuthor,
                                 coverImageUrl = book.coverImageUrl,
-                                onClick = {},
+                                onClick = { navigateToBookDetail(book.id) },
                                 modifier = Modifier
                                     .padding(horizontal = 16.dp)
                                     .fillMaxWidth()
@@ -145,6 +203,45 @@ fun SearchTopScreen(
                 }
             }
         }
+    }
+}
+
+@Composable
+internal fun NavigatorItem(
+    text: String,
+    icon: Painter? = null,
+    onClick: () -> Unit,
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .clickable { onClick() }
+            .padding(16.dp)
+    ) {
+        if (icon != null) {
+            Icon(
+                painter = icon,
+                contentDescription = null,
+                modifier = Modifier.size(24.dp)
+            )
+
+            Spacer(modifier = Modifier.size(8.dp))
+        }
+
+        Text(
+            text = text,
+            fontSize = 20.sp,
+            lineHeight = 24.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.weight(1f)
+        )
+
+        Spacer(modifier = Modifier.size(8.dp))
+
+        Icon(
+            painter = painterResource(DrawableR.chevron_forward_24dp_fill),
+            contentDescription = null,
+        )
     }
 }
 

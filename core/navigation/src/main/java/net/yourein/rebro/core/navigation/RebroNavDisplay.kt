@@ -99,6 +99,7 @@ fun RebroNavDisplay(
                         navigateToAllBooks = {},
                         navigateToAllBookshelves = {},
                         navigateToAllAuthors = {},
+                        navigateToBookDetail = {},
                     )
                 }
                 entry<RegisterTop> { RegisterTopScreen() }
