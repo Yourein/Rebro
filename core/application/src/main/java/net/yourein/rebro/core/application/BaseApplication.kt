@@ -2,6 +2,7 @@ package net.yourein.rebro.core.application
 
 import android.app.Application
 import androidx.room.Room
+import net.yourein.rebro.feature.searchtop.SearchTopViewModel
 import net.yourein.rebro.interfaces.AuthorRepository
 import net.yourein.rebro.interfaces.BookRepository
 import net.yourein.rebro.interfaces.BookshelfRepository
@@ -72,6 +73,6 @@ abstract class BaseApplication : Application() {
     }
 
     private val viewModelKoinModule = module {
-        
+        factory<SearchTopViewModel> { SearchTopViewModel(get()) }
     }
 }

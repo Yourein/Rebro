@@ -93,7 +93,12 @@ fun RebroNavDisplay(
             onBack = { backStack.removeLastOrNull() },
             entryProvider = entryProvider {
                 entry<SearchTop> {
-                    SearchTopScreen()
+                    SearchTopScreen(
+                        navigateToSearchScreen = {},
+                        navigateToAllBooks = {},
+                        navigateToAllBookshelves = {},
+                        navigateToAllAuthors = {},
+                    )
                 }
                 entry<RegisterTop> { PlaceholderScreen("RegisterTop") }
                 entry<Bookshelfs> { PlaceholderScreen("Bookshelfs") }

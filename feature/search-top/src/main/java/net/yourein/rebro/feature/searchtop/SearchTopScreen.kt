@@ -2,6 +2,7 @@ package net.yourein.rebro.feature.searchtop
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,10 +11,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,23 +28,108 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import net.yourein.rebro.core.compose.BookListItem
+import net.yourein.rebro.core.compose.LoadingState
 import net.yourein.rebro.core.resources.DrawableR
 import net.yourein.rebro.core.resources.RebroColor
 import net.yourein.rebro.core.resources.RebroTheme
+import net.yourein.rebro.model.uimodel.BookUiModel
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun SearchTopScreen() {
+fun SearchTopScreen(
+    navigateToSearchScreen: () -> Unit,
+    navigateToAllBooks: () -> Unit,
+    navigateToAllBookshelves: () -> Unit,
+    navigateToAllAuthors: () -> Unit,
+    viewModel: SearchTopViewModel = koinViewModel(),
+) {
+    val recentBooks by viewModel.recentBooksState.collectAsStateWithLifecycle()
+    SearchTopScreen(
+        recentBooksState = recentBooks,
+        navigateToSearchScreen = {},
+    )
+}
+
+@Composable
+fun SearchTopScreen(
+    recentBooksState: LoadingState<List<BookUiModel>>,
+    navigateToSearchScreen: () -> Unit,
+) {
     LazyColumn(
         modifier = Modifier.fillMaxSize()
     ) {
         stickyHeader {
             SearchTopBar(
-                onClick = {},
+                onClick = navigateToSearchScreen,
                 modifier = Modifier
                     .background(RebroColor.Background)
                     .padding(all = 16.dp)
                     .fillMaxWidth()
             )
+        }
+
+        when(recentBooksState) {
+            is LoadingState.Success -> {
+                val books = recentBooksState.value
+                if (books.isEmpty()) {
+                    item {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 16.dp)
+                        ) {
+                            Text(
+                                text = "No Recent Books."
+                            )
+                        }
+                    }
+                } else {
+                    items(books) { book ->
+                        BookListItem(
+                            title = book.title + " " + book.subtitle,
+                            author = book.displayAuthor,
+                            coverImageUrl = book.coverImageUrl,
+                            onClick = {},
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp)
+                                .fillMaxWidth()
+                        )
+                        HorizontalDivider(
+                            color = Color.Gray,
+                            thickness = 1.dp
+                        )
+                    }
+                }
+            }
+            is LoadingState.Error -> {
+                item {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 16.dp)
+                    ) {
+                        Text(
+                            text = "Error!"
+                        )
+                    }
+                }
+            }
+            is LoadingState.Loading -> {
+                item {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 16.dp)
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+            }
         }
     }
 }
