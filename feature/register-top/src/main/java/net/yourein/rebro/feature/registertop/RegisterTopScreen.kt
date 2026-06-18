@@ -70,14 +70,14 @@ internal fun RegisterTopScreen(
             .padding(16.dp),
     ) {
         Text(
-            text = "デバッグ用 本登録",
+            text = "Register A New Book",
             fontWeight = FontWeight.Bold,
-            fontSize = 20.sp,
+            fontSize = 24.sp,
         )
-        Text(
-            text = "登録済みの本：${bookCount}件",
-            fontSize = 14.sp,
-        )
+
+        HorizontalDivider()
+
+        RegisterTopAutofillSection()
 
         HorizontalDivider()
 
