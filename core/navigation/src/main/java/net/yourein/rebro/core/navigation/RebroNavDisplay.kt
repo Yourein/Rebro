@@ -21,12 +21,16 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
+import net.yourein.rebro.core.navigation.destinations.AllAuthors
+import net.yourein.rebro.core.navigation.destinations.AllBooks
+import net.yourein.rebro.core.navigation.destinations.AllBookshelves
 import net.yourein.rebro.core.navigation.destinations.AuthorDetail
 import net.yourein.rebro.core.navigation.destinations.Authors
 import net.yourein.rebro.core.navigation.destinations.BookDetail
 import net.yourein.rebro.core.navigation.destinations.BookshelfDetail
 import net.yourein.rebro.core.navigation.destinations.Bookshelfs
 import net.yourein.rebro.core.navigation.destinations.RegisterTop
+import net.yourein.rebro.core.navigation.destinations.Search
 import net.yourein.rebro.core.navigation.destinations.SearchTop
 import net.yourein.rebro.core.resources.DrawableR
 import net.yourein.rebro.core.resources.RebroColor
@@ -95,11 +99,11 @@ fun RebroNavDisplay(
             entryProvider = entryProvider {
                 entry<SearchTop> {
                     SearchTopScreen(
-                        navigateToSearchScreen = {},
-                        navigateToAllBooks = {},
-                        navigateToAllBookshelves = {},
-                        navigateToAllAuthors = {},
-                        navigateToBookDetail = {},
+                        navigateToSearchScreen = { backStack.add(Search) },
+                        navigateToAllBooks = { backStack.add(AllBooks) },
+                        navigateToAllBookshelves = { backStack.add(AllBookshelves) },
+                        navigateToAllAuthors = { backStack.add(AllAuthors) },
+                        navigateToBookDetail = { backStack.add(BookDetail) },
                     )
                 }
                 entry<RegisterTop> { RegisterTopScreen() }
@@ -108,6 +112,10 @@ fun RebroNavDisplay(
                 entry<BookshelfDetail> { PlaceholderScreen("BookshelfDetail") }
                 entry<BookDetail> { PlaceholderScreen("BookDetail") }
                 entry<AuthorDetail> { PlaceholderScreen("AuthorDetail") }
+                entry<AllBooks> { PlaceholderScreen("AllBooks") }
+                entry<AllBookshelves> { PlaceholderScreen("AllBookshelves") }
+                entry<AllAuthors> { PlaceholderScreen("AllAuthors") }
+                entry<Search> { PlaceholderScreen("Search") }
             },
         )
     }
