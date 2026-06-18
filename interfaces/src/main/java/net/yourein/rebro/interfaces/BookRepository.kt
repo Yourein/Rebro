@@ -6,6 +6,7 @@ import net.yourein.rebro.model.entity.CommercialBookDetail
 import net.yourein.rebro.model.entity.DoujinBookDetail
 import net.yourein.rebro.model.relation.BookWithDetailAndAuthors
 
+
 interface BookRepository {
     fun getAllBooks(): Flow<List<BookWithDetailAndAuthors>>
 
@@ -13,6 +14,9 @@ interface BookRepository {
 
     /** 指定著者が書いた本を取得する（著者での絞り込み）。 */
     fun getBooksByAuthor(authorId: Long): Flow<List<Book>>
+
+    /** 指定サークルが出版した同人本を取得する。 */
+    fun getBooksByCircle(circleId: Long): Flow<List<BookWithDetailAndAuthors>>
 
     /**
      * 書名・ISBN・ISDN を横断して曖昧検索する。

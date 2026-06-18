@@ -122,6 +122,7 @@ private fun BookDetailScreenDoujinPreview() {
                     coverImageUrl = null,
                     readingStatus = ReadingStatus.UNREAD,
                     authors = listOf("作家A", "作家B"),
+                    circleId = 1L,
                     circleName = "サークル名",
                     isdn = "ISDN-0000-0000",
                 )

@@ -58,6 +58,7 @@ sealed class BookUiModel {
         override val coverImageUrl: String?,
         override val readingStatus: ReadingStatus,
         override val authors: List<String>,
+        val circleId: Long?,
         val circleName: String?,
         val isdn: String?,
     ) : BookUiModel()
@@ -92,8 +93,9 @@ fun BookWithDetailAndAuthors.toUiModel(): BookUiModel {
             coverImageUrl = book.thumbnailPath,
             readingStatus = book.readingStatus,
             authors = authorNames,
-            circleName = doujinDetail?.circleName,
-            isdn = doujinDetail?.isdn,
+            circleId = doujinDetail?.detail?.circleId,
+            circleName = doujinDetail?.circle?.name,
+            isdn = doujinDetail?.detail?.isdn,
         )
     }
 }

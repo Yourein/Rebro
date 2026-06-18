@@ -16,10 +16,12 @@ import kotlinx.coroutines.launch
 import net.yourein.rebro.interfaces.AuthorRepository
 import net.yourein.rebro.interfaces.BookRepository
 import net.yourein.rebro.interfaces.BookshelfRepository
+import net.yourein.rebro.interfaces.CircleRepository
 import net.yourein.rebro.model.BookType
 import net.yourein.rebro.model.entity.Author
 import net.yourein.rebro.model.entity.Book
 import net.yourein.rebro.model.entity.Bookshelf
+import net.yourein.rebro.model.entity.Circle
 import net.yourein.rebro.model.entity.CommercialBookDetail
 import net.yourein.rebro.model.entity.DoujinBookDetail
 import java.io.File
@@ -39,6 +41,7 @@ class RegisterTopViewModel(
     private val bookRepository: BookRepository,
     private val authorRepository: AuthorRepository,
     private val bookshelfRepository: BookshelfRepository,
+    private val circleRepository: CircleRepository,
 ) : ViewModel() {
 
     /** 現在 DB に登録されている本の総数（デバッグ表示用）。 */
@@ -151,12 +154,15 @@ class RegisterTopViewModel(
                         )
                     )
 
-                    BookType.DOUJIN -> bookRepository.addDoujinDetail(
-                        DoujinBookDetail(
-                            bookId = bookId,
-                            circleName = detail.trim().ifEmpty { null },
+                    BookType.DOUJIN -> {
+                        val circleId = resolveCircle(detail)
+                        bookRepository.addDoujinDetail(
+                            DoujinBookDetail(
+                                bookId = bookId,
+                                circleId = circleId,
+                            )
                         )
-                    )
+                    }
                 }
                 bookId
             }.onSuccess { bookId ->
@@ -201,6 +207,14 @@ class RegisterTopViewModel(
             ?: existing.firstOrNull()
         return target?.id
             ?: bookshelfRepository.addBookshelf(Bookshelf(name = DEBUG_BOOKSHELF_NAME))
+    }
+
+    /** サークル名を find-or-create して ID に解決する。空文字なら null。 */
+    private suspend fun resolveCircle(raw: String): Long? {
+        val name = raw.trim()
+        if (name.isEmpty()) return null
+        return circleRepository.findCircleByName(name)?.id
+            ?: circleRepository.addCircle(Circle(name = name))
     }
 
     /** 区切り文字で分割した著者名を find-or-create して ID リストに解決する。 */

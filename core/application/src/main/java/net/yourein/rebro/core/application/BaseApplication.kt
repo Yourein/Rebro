@@ -9,10 +9,12 @@ import net.yourein.rebro.feature.searchtop.SearchTopViewModel
 import net.yourein.rebro.interfaces.AuthorRepository
 import net.yourein.rebro.interfaces.BookRepository
 import net.yourein.rebro.interfaces.BookshelfRepository
+import net.yourein.rebro.interfaces.CircleRepository
 import net.yourein.rebro.repositories.AppDatabase
 import net.yourein.rebro.repositories.AuthorRepositoryImpl
 import net.yourein.rebro.repositories.BookRepositoryImpl
 import net.yourein.rebro.repositories.BookshelfRepositoryImpl
+import net.yourein.rebro.repositories.CircleRepositoryImpl
 import net.yourein.rebro.usecase.BooksUseCase
 import net.yourein.rebro.usecase.BookshelfUseCase
 import org.koin.android.ext.koin.androidApplication
@@ -65,12 +67,14 @@ abstract class BaseApplication : Application() {
         single { get<AppDatabase>().bookshelfDao() }
         single { get<AppDatabase>().bookDao() }
         single { get<AppDatabase>().authorDao() }
+        single { get<AppDatabase>().circleDao() }
     }
 
     private val repositoryKoinModule = module {
         factory<BookshelfRepository> { BookshelfRepositoryImpl(get()) }
         factory<BookRepository> { BookRepositoryImpl(get()) }
         factory<AuthorRepository> { AuthorRepositoryImpl(get()) }
+        factory<CircleRepository> { CircleRepositoryImpl(get()) }
     }
 
     private val useCaseKoinModule = module {
@@ -83,6 +87,6 @@ abstract class BaseApplication : Application() {
         factory<SearchViewModel> { SearchViewModel(get()) }
         factory<BookDetailViewModel> { (bookId: Long) -> BookDetailViewModel(bookId, get(), get()) }
         // 【デバッグ用】register-top 本実装までの臨時 ViewModel
-        factory<RegisterTopViewModel> { RegisterTopViewModel(androidApplication(), get(), get(), get()) }
+        factory<RegisterTopViewModel> { RegisterTopViewModel(androidApplication(), get(), get(), get(), get()) }
     }
 }

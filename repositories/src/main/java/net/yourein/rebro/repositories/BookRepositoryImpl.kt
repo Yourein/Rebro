@@ -20,6 +20,9 @@ class BookRepositoryImpl(
     override fun getBooksByAuthor(authorId: Long): Flow<List<Book>> =
         bookDao.getBooksByAuthor(authorId)
 
+    override fun getBooksByCircle(circleId: Long): Flow<List<BookWithDetailAndAuthors>> =
+        bookDao.getBooksByCircle(circleId)
+
     override fun searchBooks(query: String): Flow<List<BookWithDetailAndAuthors>> =
         bookDao.searchBooks(query)
 

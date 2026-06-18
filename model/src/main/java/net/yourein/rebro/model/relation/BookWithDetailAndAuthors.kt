@@ -24,10 +24,11 @@ data class BookWithDetailAndAuthors(
     )
     val commercialDetail: CommercialBookDetail?,
     @Relation(
+        entity = DoujinBookDetail::class,
         parentColumn = "id",
         entityColumn = "book_id",
     )
-    val doujinDetail: DoujinBookDetail?,
+    val doujinDetail: DoujinDetailWithCircle?,
     @Relation(
         parentColumn = "id",
         entityColumn = "id",

@@ -69,6 +69,17 @@ interface BookDao {
     )
     fun getRecentRegisteredBooks(): Flow<List<BookWithDetailAndAuthors>>
 
+    @Transaction
+    @Query(
+        """
+        SELECT b.* FROM books b
+        INNER JOIN doujin_book_details d ON b.id = d.book_id
+        WHERE d.circle_id = :circleId
+        ORDER BY b.id ASC
+        """
+    )
+    fun getBooksByCircle(circleId: Long): Flow<List<BookWithDetailAndAuthors>>
+
     @Query("SELECT * FROM books WHERE id = :bookId")
     suspend fun getBook(bookId: Long): Book?
 

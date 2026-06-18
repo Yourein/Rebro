@@ -8,6 +8,7 @@ import net.yourein.rebro.model.entity.Author
 import net.yourein.rebro.model.entity.Book
 import net.yourein.rebro.model.entity.BookAuthor
 import net.yourein.rebro.model.entity.Bookshelf
+import net.yourein.rebro.model.entity.Circle
 import net.yourein.rebro.model.entity.CommercialBookDetail
 import net.yourein.rebro.model.entity.DoujinBookDetail
 
@@ -19,6 +20,7 @@ import net.yourein.rebro.model.entity.DoujinBookDetail
         DoujinBookDetail::class,
         Author::class,
         BookAuthor::class,
+        Circle::class,
     ],
     version = 1,
     exportSchema = false,
@@ -28,4 +30,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun bookshelfDao(): BookshelfDao
     abstract fun bookDao(): BookDao
     abstract fun authorDao(): AuthorDao
+    abstract fun circleDao(): CircleDao
 }
