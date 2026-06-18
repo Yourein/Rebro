@@ -161,9 +161,7 @@ fun SearchTopScreen(
                                 author = book.displayAuthor,
                                 coverImageUrl = book.coverImageUrl,
                                 onClick = { navigateToBookDetail(book.id) },
-                                modifier = Modifier
-                                    .padding(horizontal = 16.dp)
-                                    .fillMaxWidth()
+                                modifier = Modifier.fillMaxWidth()
                             )
 
                             if (book != books.last()) {
