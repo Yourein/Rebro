@@ -30,6 +30,7 @@ import net.yourein.rebro.core.navigation.destinations.RegisterTop
 import net.yourein.rebro.core.navigation.destinations.SearchTop
 import net.yourein.rebro.core.resources.DrawableR
 import net.yourein.rebro.core.resources.RebroColor
+import net.yourein.rebro.feature.registertop.RegisterTopScreen
 import net.yourein.rebro.feature.searchtop.SearchTopScreen
 
 /**
@@ -100,7 +101,7 @@ fun RebroNavDisplay(
                         navigateToAllAuthors = {},
                     )
                 }
-                entry<RegisterTop> { PlaceholderScreen("RegisterTop") }
+                entry<RegisterTop> { RegisterTopScreen() }
                 entry<Bookshelfs> { PlaceholderScreen("Bookshelfs") }
                 entry<Authors> { PlaceholderScreen("Authors") }
                 entry<BookshelfDetail> { PlaceholderScreen("BookshelfDetail") }

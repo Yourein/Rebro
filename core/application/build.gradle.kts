@@ -29,6 +29,7 @@ dependencies {
     implementation(project(":usecase"))
 
     implementation(project(":feature:search-top"))
+    implementation(project(":feature:register-top"))
 
     implementation(libs.androidx.room.runtime)  // AppDatabase を構築するため
 

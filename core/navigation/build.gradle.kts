@@ -25,6 +25,7 @@ dependencies {
     implementation(project(":core:resources"))
 
     implementation(project(":feature:search-top"))
+    implementation(project(":feature:register-top"))
 
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.navigation3.ui)
