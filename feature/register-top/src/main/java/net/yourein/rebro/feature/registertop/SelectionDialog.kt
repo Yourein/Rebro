@@ -37,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import net.yourein.rebro.model.entity.Author
+import net.yourein.rebro.model.entity.Bookshelf
 import net.yourein.rebro.model.entity.Circle
 
 // ── Author ───────────────────────────────────────
@@ -98,6 +99,64 @@ internal fun AuthorSelectionSection(
                 allAuthors.find { it.id == id }?.let { onToggleAuthor(it) }
             },
             onNewItemAdded = onAddNewAuthor,
+            onDismiss = { showDialog = false },
+        )
+    }
+}
+
+// ── Bookshelf ────────────────────────────────────
+
+@Composable
+internal fun BookshelfSelectionSection(
+    selectedBookshelf: Bookshelf?,
+    allBookshelves: List<Bookshelf>,
+    onSelectBookshelf: (Bookshelf?) -> Unit,
+    onAddNewBookshelf: (String) -> Unit,
+) {
+    var showDialog by remember { mutableStateOf(false) }
+
+    Column(
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier
+            .fillMaxWidth(),
+    ) {
+        Text(text = "本棚", fontSize = 16.sp)
+
+        if (selectedBookshelf != null) {
+            InputChip(
+                selected = true,
+                onClick = { onSelectBookshelf(null) },
+                label = { Text(selectedBookshelf.name) },
+                trailingIcon = {
+                    Icon(
+                        Icons.Default.Close,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                    )
+                },
+            )
+        }
+
+        OutlinedButton(onClick = { showDialog = true }) {
+            Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(if (selectedBookshelf == null) "選択 / 追加" else "変更")
+        }
+    }
+
+    if (showDialog) {
+        val selectedIds = listOfNotNull(selectedBookshelf?.id).toSet()
+        SelectionDialog(
+            title = "本棚を選択",
+            items = allBookshelves.map { it.id to it.name },
+            selectedIds = selectedIds,
+            multiSelect = false,
+            addNewLabel = "新しい本棚名",
+            onItemToggled = { id ->
+                val bookshelf = allBookshelves.find { it.id == id }
+                onSelectBookshelf(if (selectedBookshelf?.id == id) null else bookshelf)
+            },
+            onNewItemAdded = onAddNewBookshelf,
             onDismiss = { showDialog = false },
         )
     }

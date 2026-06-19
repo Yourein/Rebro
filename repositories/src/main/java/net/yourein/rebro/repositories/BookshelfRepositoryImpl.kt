@@ -17,6 +17,9 @@ class BookshelfRepositoryImpl(
     override suspend fun getBookshelfByBook(bookId: Long): Bookshelf? =
         bookshelfDao.getBookshelfByBook(bookId)
 
+    override suspend fun findBookshelfByName(name: String): Bookshelf? =
+        bookshelfDao.findBookshelfByName(name)
+
     override suspend fun addBookshelf(bookshelf: Bookshelf): Long =
         bookshelfDao.insertBookshelf(bookshelf)
 

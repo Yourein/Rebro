@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -61,6 +60,36 @@ class RegisterTopViewModel(
 
     private val _isDownloading = MutableStateFlow(false)
     val isDownloading: StateFlow<Boolean> = _isDownloading.asStateFlow()
+
+    // ── 本棚選択 ──────────────────────────────────
+
+    val allBookshelves: StateFlow<List<Bookshelf>> = bookshelfRepository.getBookshelves()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    private val _selectedBookshelf = MutableStateFlow<Bookshelf?>(null)
+    val selectedBookshelf: StateFlow<Bookshelf?> = _selectedBookshelf.asStateFlow()
+
+    fun setBookshelf(bookshelf: Bookshelf?) {
+        _selectedBookshelf.value = bookshelf
+    }
+
+    fun addNewBookshelf(name: String) {
+        val trimmed = name.trim()
+        if (trimmed.isEmpty()) return
+        viewModelScope.launch {
+            runCatching {
+                bookshelfRepository.findBookshelfByName(trimmed)
+                    ?: Bookshelf(
+                        id = bookshelfRepository.addBookshelf(Bookshelf(name = trimmed)),
+                        name = trimmed,
+                    )
+            }.onSuccess { bookshelf ->
+                _selectedBookshelf.value = bookshelf
+            }.onFailure { e ->
+                _lastResult.value = "本棚の追加に失敗しました：${e.message}"
+            }
+        }
+    }
 
     // ── 著者選択 ──────────────────────────────────
 
@@ -196,9 +225,13 @@ class RegisterTopViewModel(
             _lastResult.value = "タイトルを入力してください"
             return
         }
+        val bookshelfId = _selectedBookshelf.value?.id
+        if (bookshelfId == null) {
+            _lastResult.value = "本棚を選択してください"
+            return
+        }
         viewModelScope.launch {
             runCatching {
-                val bookshelfId = ensureDebugBookshelf()
                 val authorIds = _selectedAuthors.value.map { it.id }
                 val bookId = bookRepository.addBookWithAuthors(
                     book = Book(
@@ -229,6 +262,7 @@ class RegisterTopViewModel(
             }.onSuccess { bookId ->
                 _lastResult.value = "登録しました（bookId=$bookId）：$trimmedTitle"
                 _coverImagePath.value = null
+                _selectedBookshelf.value = null
                 _selectedAuthors.value = emptyList()
                 _selectedCircle.value = null
             }.onFailure { e ->
@@ -241,6 +275,14 @@ class RegisterTopViewModel(
         val n = bookCount.value + 1
         val isCommercial = n % 2 == 0
         viewModelScope.launch {
+            val bookshelfName = "デバッグ本棚"
+            val bookshelf = bookshelfRepository.findBookshelfByName(bookshelfName)
+                ?: Bookshelf(
+                    id = bookshelfRepository.addBookshelf(Bookshelf(name = bookshelfName)),
+                    name = bookshelfName,
+                )
+            _selectedBookshelf.value = bookshelf
+
             val authorName = "テスト著者$n"
             val author = authorRepository.findAuthorByName(authorName)
                 ?: Author(
@@ -280,16 +322,7 @@ class RegisterTopViewModel(
         return File(dir, "${UUID.randomUUID()}.jpg")
     }
 
-    private suspend fun ensureDebugBookshelf(): Long {
-        val existing = bookshelfRepository.getBookshelves().first()
-        val target = existing.firstOrNull { it.name == DEBUG_BOOKSHELF_NAME }
-            ?: existing.firstOrNull()
-        return target?.id
-            ?: bookshelfRepository.addBookshelf(Bookshelf(name = DEBUG_BOOKSHELF_NAME))
-    }
-
     private companion object {
-        const val DEBUG_BOOKSHELF_NAME = "デバッグ本棚"
         const val COVER_IMAGES_DIR = "cover_images"
     }
 }

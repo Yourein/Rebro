@@ -36,6 +36,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import net.yourein.rebro.core.resources.RebroTheme
 import net.yourein.rebro.model.BookType
 import net.yourein.rebro.model.entity.Author
+import net.yourein.rebro.model.entity.Bookshelf
 import net.yourein.rebro.model.entity.Circle
 import org.koin.androidx.compose.koinViewModel
 
@@ -52,6 +53,8 @@ fun RegisterTopScreen(
     val lastResult by viewModel.lastResult.collectAsStateWithLifecycle()
     val coverImagePath by viewModel.coverImagePath.collectAsStateWithLifecycle()
     val isDownloading by viewModel.isDownloading.collectAsStateWithLifecycle()
+    val selectedBookshelf by viewModel.selectedBookshelf.collectAsStateWithLifecycle()
+    val allBookshelves by viewModel.allBookshelves.collectAsStateWithLifecycle()
     val selectedAuthors by viewModel.selectedAuthors.collectAsStateWithLifecycle()
     val allAuthors by viewModel.allAuthors.collectAsStateWithLifecycle()
     val selectedCircle by viewModel.selectedCircle.collectAsStateWithLifecycle()
@@ -67,6 +70,8 @@ fun RegisterTopScreen(
         lastResult = lastResult,
         coverImagePath = coverImagePath,
         isDownloading = isDownloading,
+        selectedBookshelf = selectedBookshelf,
+        allBookshelves = allBookshelves,
         selectedAuthors = selectedAuthors,
         allAuthors = allAuthors,
         selectedCircle = selectedCircle,
@@ -80,6 +85,8 @@ fun RegisterTopScreen(
         },
         onUrlSpecified = viewModel::downloadCoverImage,
         onClearImage = viewModel::clearCoverImage,
+        onSetBookshelf = viewModel::setBookshelf,
+        onAddNewBookshelf = viewModel::addNewBookshelf,
         onToggleAuthor = viewModel::toggleAuthor,
         onRemoveAuthor = viewModel::removeAuthor,
         onAddNewAuthor = viewModel::addNewAuthor,
@@ -93,6 +100,8 @@ internal fun RegisterTopScreen(
     lastResult: String?,
     coverImagePath: String?,
     isDownloading: Boolean,
+    selectedBookshelf: Bookshelf?,
+    allBookshelves: List<Bookshelf>,
     selectedAuthors: List<Author>,
     allAuthors: List<Author>,
     selectedCircle: Circle?,
@@ -102,6 +111,8 @@ internal fun RegisterTopScreen(
     onPickFromGallery: () -> Unit,
     onUrlSpecified: (String) -> Unit,
     onClearImage: () -> Unit,
+    onSetBookshelf: (Bookshelf?) -> Unit,
+    onAddNewBookshelf: (String) -> Unit,
     onToggleAuthor: (Author) -> Unit,
     onRemoveAuthor: (Author) -> Unit,
     onAddNewAuthor: (String) -> Unit,
@@ -197,6 +208,13 @@ internal fun RegisterTopScreen(
             }
         }
 
+        BookshelfSelectionSection(
+            selectedBookshelf = selectedBookshelf,
+            allBookshelves = allBookshelves,
+            onSelectBookshelf = onSetBookshelf,
+            onAddNewBookshelf = onAddNewBookshelf,
+        )
+
         HorizontalDivider()
 
         RegisterTopCoverImageSection(
@@ -249,6 +267,10 @@ private fun RegisterTopScreenPreview() {
             lastResult = "登録しました（bookId=3）：サンプル本 #3",
             coverImagePath = null,
             isDownloading = false,
+            selectedBookshelf = Bookshelf(id = 1, name = "デバッグ本棚"),
+            allBookshelves = listOf(
+                Bookshelf(id = 1, name = "デバッグ本棚"),
+            ),
             selectedAuthors = listOf(
                 Author(id = 1, name = "テスト著者"),
             ),
@@ -263,6 +285,8 @@ private fun RegisterTopScreenPreview() {
             onPickFromGallery = {},
             onUrlSpecified = {},
             onClearImage = {},
+            onSetBookshelf = {},
+            onAddNewBookshelf = {},
             onToggleAuthor = {},
             onRemoveAuthor = {},
             onAddNewAuthor = {},

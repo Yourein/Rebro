@@ -26,6 +26,9 @@ interface BookshelfDao {
     )
     suspend fun getBookshelfByBook(bookId: Long): Bookshelf?
 
+    @Query("SELECT * FROM bookshelves WHERE name = :name LIMIT 1")
+    suspend fun findBookshelfByName(name: String): Bookshelf?
+
     @Insert
     suspend fun insertBookshelf(bookshelf: Bookshelf): Long
 
