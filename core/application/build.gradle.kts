@@ -33,6 +33,7 @@ dependencies {
     implementation(project(":feature:register-top"))
     implementation(project(":feature:book-detail"))
     implementation(project(":feature:circles"))
+    implementation(project(":feature:series"))
 
     implementation(libs.androidx.room.runtime)  // AppDatabase を構築するため
     implementation(libs.retrofit.core)

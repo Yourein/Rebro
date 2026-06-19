@@ -38,6 +38,7 @@ import net.yourein.rebro.core.navigation.destinations.AllAuthors
 import net.yourein.rebro.core.navigation.destinations.AllBooks
 import net.yourein.rebro.core.navigation.destinations.AllBookshelves
 import net.yourein.rebro.core.navigation.destinations.AllCircles
+import net.yourein.rebro.core.navigation.destinations.AllSeries
 import net.yourein.rebro.core.navigation.destinations.AuthorDetail
 import net.yourein.rebro.core.navigation.destinations.Authors
 import net.yourein.rebro.core.navigation.destinations.BookDetail
@@ -55,6 +56,7 @@ import net.yourein.rebro.feature.registertop.IsdnDebugScreen
 import net.yourein.rebro.feature.registertop.RegisterTopScreen
 import net.yourein.rebro.feature.search.SearchScreen
 import net.yourein.rebro.feature.searchtop.SearchTopScreen
+import net.yourein.rebro.feature.series.SeriesScreen
 
 /**
  * ボトムナビゲーションで相互に行き来できるトップレベルの遷移先。
@@ -131,6 +133,7 @@ fun RebroNavDisplay(
                         navigateToAllBookshelves = { backStack.add(AllBookshelves) },
                         navigateToAllAuthors = { backStack.add(AllAuthors) },
                         navigateToAllCircles = { backStack.add(AllCircles) },
+                        navigateToAllSeries = { backStack.add(AllSeries) },
                         navigateToBookDetail = { bookId -> backStack.add(BookDetail(bookId)) },
                     )
                 }
@@ -158,6 +161,11 @@ fun RebroNavDisplay(
                 entry<AllAuthors> { PlaceholderScreen("AllAuthors") }
                 entry<AllCircles> {
                     CirclesScreen(
+                        navigateBack = { backStack.removeLastOrNull() },
+                    )
+                }
+                entry<AllSeries> {
+                    SeriesScreen(
                         navigateBack = { backStack.removeLastOrNull() },
                     )
                 }

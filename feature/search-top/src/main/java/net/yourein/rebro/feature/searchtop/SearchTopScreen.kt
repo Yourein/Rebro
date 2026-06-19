@@ -52,6 +52,7 @@ fun SearchTopScreen(
     navigateToAllBookshelves: () -> Unit,
     navigateToAllAuthors: () -> Unit,
     navigateToAllCircles: () -> Unit,
+    navigateToAllSeries: () -> Unit,
     navigateToBookDetail: (bookId: Long) -> Unit,
     viewModel: SearchTopViewModel = koinViewModel(),
 ) {
@@ -63,6 +64,7 @@ fun SearchTopScreen(
         navigateToAllBookshelves = navigateToAllBookshelves,
         navigateToAllAuthors = navigateToAllAuthors,
         navigateToAllCircles = navigateToAllCircles,
+        navigateToAllSeries = navigateToAllSeries,
         navigateToBookDetail = navigateToBookDetail,
     )
 }
@@ -75,6 +77,7 @@ fun SearchTopScreen(
     navigateToAllBookshelves: () -> Unit,
     navigateToAllAuthors: () -> Unit,
     navigateToAllCircles: () -> Unit,
+    navigateToAllSeries: () -> Unit,
     navigateToBookDetail: (bookId: Long) -> Unit,
 ) {
     Column(
@@ -142,6 +145,19 @@ fun SearchTopScreen(
                     text = "Circles",
                     icon = painterResource(DrawableR.group_24dp_fill),
                     onClick = navigateToAllCircles,
+                )
+                HorizontalDivider(
+                    color = Color.Gray,
+                    thickness = 1.dp,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+            }
+
+            item {
+                NavigatorItem(
+                    text = "Series/Parodies",
+                    icon = painterResource(DrawableR.stories_24dp_fill),
+                    onClick = navigateToAllSeries,
                 )
                 Spacer(modifier = Modifier.size(8.dp))
             }

@@ -8,6 +8,7 @@ import net.yourein.rebro.feature.registertop.IsdnDebugViewModel
 import net.yourein.rebro.feature.registertop.RegisterTopViewModel
 import net.yourein.rebro.feature.search.SearchViewModel
 import net.yourein.rebro.feature.searchtop.SearchTopViewModel
+import net.yourein.rebro.feature.series.SeriesViewModel
 import net.yourein.rebro.interfaces.AuthorRepository
 import net.yourein.rebro.interfaces.BookRepository
 import net.yourein.rebro.interfaces.BookshelfRepository
@@ -147,6 +148,7 @@ abstract class BaseApplication : Application() {
         factory<SearchViewModel> { SearchViewModel(get()) }
         factory<BookDetailViewModel> { (bookId: Long) -> BookDetailViewModel(bookId, get(), get()) }
         factory<CirclesViewModel> { CirclesViewModel(get()) }
+        factory<SeriesViewModel> { SeriesViewModel(get()) }
         factory<RegisterTopViewModel> { RegisterTopViewModel(androidApplication(), get(), get(), get(), get(), get()) }
         factory<IsdnDebugViewModel> { IsdnDebugViewModel(get(), get()) }
     }
