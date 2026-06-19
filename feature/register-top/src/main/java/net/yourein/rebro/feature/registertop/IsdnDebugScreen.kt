@@ -38,6 +38,7 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun IsdnDebugScreen(
+    onApplyAutofill: ((AutofillResult) -> Unit)? = null,
     viewModel: IsdnDebugViewModel = koinViewModel(),
 ) {
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
@@ -118,6 +119,18 @@ fun IsdnDebugScreen(
         isbnResult?.let { response ->
             HorizontalDivider()
             IsbnResultSection(response)
+        }
+
+        if (onApplyAutofill != null && (isdnResult != null || isbnResult != null)) {
+            HorizontalDivider()
+            Button(
+                onClick = {
+                    viewModel.buildAutofillResult()?.let { onApplyAutofill(it) }
+                },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("この内容でフォームに適用")
+            }
         }
     }
 }

@@ -22,6 +22,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,6 +45,8 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun RegisterTopScreen(
     navigateToIsdnDebug: () -> Unit = {},
+    pendingAutofill: AutofillResult? = null,
+    onAutofillConsumed: () -> Unit = {},
     viewModel: RegisterTopViewModel = koinViewModel(),
 ) {
     val lastResult by viewModel.lastResult.collectAsStateWithLifecycle()
@@ -69,6 +72,7 @@ fun RegisterTopScreen(
         lastResult = lastResult,
         coverImagePath = coverImagePath,
         isDownloading = isDownloading,
+        pendingAutofill = pendingAutofill,
         selectedBookshelf = selectedBookshelf,
         allBookshelves = allBookshelves,
         selectedAuthors = selectedAuthors,
@@ -78,6 +82,10 @@ fun RegisterTopScreen(
         selectedSeries = selectedSeries,
         allSeries = allSeries,
         onRegister = viewModel::registerBook,
+        onConsumeAutofill = { result ->
+            viewModel.applyAutofill(result)
+            onAutofillConsumed()
+        },
         onPickFromGallery = {
             photoPickerLauncher.launch(
                 PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
@@ -104,6 +112,7 @@ internal fun RegisterTopScreen(
     lastResult: String?,
     coverImagePath: String?,
     isDownloading: Boolean,
+    pendingAutofill: AutofillResult?,
     selectedBookshelf: Bookshelf?,
     allBookshelves: List<Bookshelf>,
     selectedAuthors: List<Author>,
@@ -113,6 +122,7 @@ internal fun RegisterTopScreen(
     selectedSeries: List<Series>,
     allSeries: List<Series>,
     onRegister: (title: String, subtitle: String, bookType: BookType, publisher: String) -> Unit,
+    onConsumeAutofill: (AutofillResult) -> Unit,
     onPickFromGallery: () -> Unit,
     onUrlSpecified: (String) -> Unit,
     onClearImage: () -> Unit,
@@ -131,6 +141,15 @@ internal fun RegisterTopScreen(
     var subtitle by remember { mutableStateOf("") }
     var bookType by remember { mutableStateOf(BookType.COMMERCIAL) }
     var publisher by remember { mutableStateOf("") }
+
+    LaunchedEffect(pendingAutofill) {
+        if (pendingAutofill != null) {
+            title = pendingAutofill.title
+            bookType = pendingAutofill.bookType
+            publisher = pendingAutofill.publisher
+            onConsumeAutofill(pendingAutofill)
+        }
+    }
 
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -277,6 +296,7 @@ private fun RegisterTopScreenPreview() {
             lastResult = "登録しました（bookId=3）：サンプル本 #3",
             coverImagePath = null,
             isDownloading = false,
+            pendingAutofill = null,
             selectedBookshelf = Bookshelf(id = 1, name = "デバッグ本棚"),
             allBookshelves = listOf(
                 Bookshelf(id = 1, name = "デバッグ本棚"),
@@ -293,6 +313,7 @@ private fun RegisterTopScreenPreview() {
             selectedSeries = emptyList(),
             allSeries = emptyList(),
             onRegister = { _, _, _, _ -> },
+            onConsumeAutofill = {},
             onPickFromGallery = {},
             onUrlSpecified = {},
             onClearImage = {},

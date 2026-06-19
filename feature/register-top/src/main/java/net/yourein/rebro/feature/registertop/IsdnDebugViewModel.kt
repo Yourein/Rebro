@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import net.yourein.rebro.interfaces.IsdnRepository
 import net.yourein.rebro.interfaces.NdlRepository
+import net.yourein.rebro.model.BookType
 import net.yourein.rebro.model.isdn.IsdnResponse
 import net.yourein.rebro.model.ndl.SruResponse
 
@@ -28,6 +29,39 @@ class IsdnDebugViewModel(
 
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
+
+    fun buildAutofillResult(): AutofillResult? {
+        _isdnResult.value?.let { response ->
+            val item = response.item?.firstOrNull() ?: return null
+            val authorNames = item.userOptions
+                ?.filter { opt ->
+                    val prop = opt.property ?: return@filter false
+                    prop.contains("著者") || prop.contains("筆者")
+                }
+                ?.mapNotNull { it.value }
+                ?: emptyList()
+            return AutofillResult(
+                title = item.productName ?: "",
+                bookType = BookType.DOUJIN,
+                publisher = "",
+                authorNames = authorNames,
+                circleName = item.publisherName,
+                coverImageUrl = item.sampleImageUri?.takeIf { it.isNotBlank() },
+            )
+        }
+        _isbnResult.value?.let { response ->
+            val dc = response.records?.record?.firstOrNull()?.recordData?.dc ?: return null
+            return AutofillResult(
+                title = dc.title ?: "",
+                bookType = BookType.COMMERCIAL,
+                publisher = dc.publisher ?: "",
+                authorNames = listOfNotNull(dc.creator),
+                circleName = null,
+                coverImageUrl = null,
+            )
+        }
+        return null
+    }
 
     fun fetch(code: String, mode: LookupMode) {
         viewModelScope.launch {

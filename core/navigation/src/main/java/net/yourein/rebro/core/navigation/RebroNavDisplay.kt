@@ -23,6 +23,10 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -52,6 +56,7 @@ import net.yourein.rebro.core.resources.DrawableR
 import net.yourein.rebro.core.resources.RebroColor
 import net.yourein.rebro.feature.bookdetail.BookDetailScreen
 import net.yourein.rebro.feature.circles.CirclesScreen
+import net.yourein.rebro.feature.registertop.AutofillResult
 import net.yourein.rebro.feature.registertop.IsdnDebugScreen
 import net.yourein.rebro.feature.registertop.RegisterTopScreen
 import net.yourein.rebro.feature.search.SearchScreen
@@ -96,6 +101,7 @@ fun RebroNavDisplay(
     modifier: Modifier = Modifier,
     backStack: NavBackStack<NavKey> = rememberNavBackStack(SearchTop),
 ) {
+    var pendingAutofill by remember { mutableStateOf<AutofillResult?>(null) }
     val currentKey = backStack.lastOrNull()
     Scaffold(
         bottomBar = {
@@ -140,9 +146,18 @@ fun RebroNavDisplay(
                 entry<RegisterTop> {
                     RegisterTopScreen(
                         navigateToIsdnDebug = { backStack.add(IsdnDebug) },
+                        pendingAutofill = pendingAutofill,
+                        onAutofillConsumed = { pendingAutofill = null },
                     )
                 }
-                entry<IsdnDebug> { IsdnDebugScreen() }
+                entry<IsdnDebug> {
+                    IsdnDebugScreen(
+                        onApplyAutofill = { result ->
+                            pendingAutofill = result
+                            backStack.removeLastOrNull()
+                        },
+                    )
+                }
                 entry<Bookshelfs> { PlaceholderScreen("Bookshelfs") }
                 entry<Authors> { PlaceholderScreen("Authors") }
                 entry<BookshelfDetail> { key -> PlaceholderScreen("BookshelfDetail(bookshelfId=${key.bookshelfId})") }

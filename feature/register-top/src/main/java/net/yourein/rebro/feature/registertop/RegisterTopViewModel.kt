@@ -28,6 +28,15 @@ import java.io.File
 import java.net.URL
 import java.util.UUID
 
+data class AutofillResult(
+    val title: String,
+    val bookType: BookType,
+    val publisher: String,
+    val authorNames: List<String>,
+    val circleName: String?,
+    val coverImageUrl: String?,
+)
+
 /** 書籍登録画面の ViewModel。 */
 class RegisterTopViewModel(
     private val application: Application,
@@ -237,6 +246,14 @@ class RegisterTopViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             File(path).delete()
         }
+    }
+
+    // ── Autofill ─────────────────────────────────
+
+    fun applyAutofill(result: AutofillResult) {
+        result.authorNames.forEach { addNewAuthor(it) }
+        result.circleName?.let { addNewCircle(it) }
+        result.coverImageUrl?.let { downloadCoverImage(it) }
     }
 
     // ── 登録 ─────────────────────────────────────
