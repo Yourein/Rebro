@@ -43,6 +43,7 @@ import net.yourein.rebro.core.navigation.destinations.Authors
 import net.yourein.rebro.core.navigation.destinations.BookDetail
 import net.yourein.rebro.core.navigation.destinations.BookshelfDetail
 import net.yourein.rebro.core.navigation.destinations.Bookshelfs
+import net.yourein.rebro.core.navigation.destinations.IsdnDebug
 import net.yourein.rebro.core.navigation.destinations.RegisterTop
 import net.yourein.rebro.core.navigation.destinations.Search
 import net.yourein.rebro.core.navigation.destinations.SearchTop
@@ -50,6 +51,7 @@ import net.yourein.rebro.core.resources.DrawableR
 import net.yourein.rebro.core.resources.RebroColor
 import net.yourein.rebro.feature.bookdetail.BookDetailScreen
 import net.yourein.rebro.feature.circles.CirclesScreen
+import net.yourein.rebro.feature.registertop.IsdnDebugScreen
 import net.yourein.rebro.feature.registertop.RegisterTopScreen
 import net.yourein.rebro.feature.search.SearchScreen
 import net.yourein.rebro.feature.searchtop.SearchTopScreen
@@ -132,7 +134,12 @@ fun RebroNavDisplay(
                         navigateToBookDetail = { bookId -> backStack.add(BookDetail(bookId)) },
                     )
                 }
-                entry<RegisterTop> { RegisterTopScreen() }
+                entry<RegisterTop> {
+                    RegisterTopScreen(
+                        navigateToIsdnDebug = { backStack.add(IsdnDebug) },
+                    )
+                }
+                entry<IsdnDebug> { IsdnDebugScreen() }
                 entry<Bookshelfs> { PlaceholderScreen("Bookshelfs") }
                 entry<Authors> { PlaceholderScreen("Authors") }
                 entry<BookshelfDetail> { key -> PlaceholderScreen("BookshelfDetail(bookshelfId=${key.bookshelfId})") }

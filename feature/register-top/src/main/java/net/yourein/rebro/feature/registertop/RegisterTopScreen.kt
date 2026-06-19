@@ -42,6 +42,7 @@ import org.koin.androidx.compose.koinViewModel
 /** 書籍登録画面。 */
 @Composable
 fun RegisterTopScreen(
+    navigateToIsdnDebug: () -> Unit = {},
     viewModel: RegisterTopViewModel = koinViewModel(),
 ) {
     val lastResult by viewModel.lastResult.collectAsStateWithLifecycle()
@@ -61,6 +62,7 @@ fun RegisterTopScreen(
     }
 
     RegisterTopScreen(
+        navigateToIsdnDebug = navigateToIsdnDebug,
         lastResult = lastResult,
         coverImagePath = coverImagePath,
         isDownloading = isDownloading,
@@ -90,6 +92,7 @@ fun RegisterTopScreen(
 
 @Composable
 internal fun RegisterTopScreen(
+    navigateToIsdnDebug: () -> Unit,
     lastResult: String?,
     coverImagePath: String?,
     isDownloading: Boolean,
@@ -135,7 +138,9 @@ internal fun RegisterTopScreen(
 
         HorizontalDivider()
 
-        RegisterTopAutofillSection()
+        RegisterTopAutofillSection(
+            onNavigateToIsdnDebug = navigateToIsdnDebug,
+        )
 
         HorizontalDivider()
 
@@ -247,6 +252,7 @@ private val BookType.displayLabel: String
 private fun RegisterTopScreenPreview() {
     RebroTheme {
         RegisterTopScreen(
+            navigateToIsdnDebug = {},
             lastResult = "登録しました（bookId=3）：サンプル本 #3",
             coverImagePath = null,
             isDownloading = false,

@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.room.Room
 import net.yourein.rebro.feature.bookdetail.BookDetailViewModel
 import net.yourein.rebro.feature.circles.CirclesViewModel
+import net.yourein.rebro.feature.registertop.IsdnDebugViewModel
 import net.yourein.rebro.feature.registertop.RegisterTopViewModel
 import net.yourein.rebro.feature.search.SearchViewModel
 import net.yourein.rebro.feature.searchtop.SearchTopViewModel
@@ -11,18 +12,27 @@ import net.yourein.rebro.interfaces.AuthorRepository
 import net.yourein.rebro.interfaces.BookRepository
 import net.yourein.rebro.interfaces.BookshelfRepository
 import net.yourein.rebro.interfaces.CircleRepository
+import net.yourein.rebro.interfaces.IsdnRepository
 import net.yourein.rebro.repositories.AppDatabase
 import net.yourein.rebro.repositories.AuthorRepositoryImpl
 import net.yourein.rebro.repositories.BookRepositoryImpl
 import net.yourein.rebro.repositories.BookshelfRepositoryImpl
 import net.yourein.rebro.repositories.CircleRepositoryImpl
+import net.yourein.rebro.repositories.IsdnApiService
+import net.yourein.rebro.repositories.IsdnRepositoryImpl
 import net.yourein.rebro.usecase.BooksUseCase
 import net.yourein.rebro.usecase.BookshelfUseCase
+import nl.adaptivity.xmlutil.serialization.DefaultXmlSerializationPolicy
+import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XmlConfig
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
+import retrofit2.Retrofit
 
 abstract class BaseApplication : Application() {
 
@@ -43,12 +53,38 @@ abstract class BaseApplication : Application() {
             androidContext(this@BaseApplication)
             modules(
                 listOf(
+                    networkKoinModule,
                     databaseKoinModule,
                     repositoryKoinModule,
                     useCaseKoinModule,
                     viewModelKoinModule,
                 )
             )
+        }
+    }
+
+    private val networkKoinModule = module {
+        single {
+            val okHttpClient = OkHttpClient.Builder()
+                .addInterceptor(
+                    HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
+                )
+                .build()
+
+            Retrofit.Builder()
+                .baseUrl("https://isdn.jp/")
+                .client(okHttpClient)
+                .build()
+        }
+        single { get<Retrofit>().create(IsdnApiService::class.java) }
+        single {
+            XML {
+                recommended()
+                policy = DefaultXmlSerializationPolicy.Builder().apply {
+                    pedantic = false
+                    unknownChildHandler = XmlConfig.IGNORING_UNKNOWN_CHILD_HANDLER
+                }.build()
+            }
         }
     }
 
@@ -76,6 +112,7 @@ abstract class BaseApplication : Application() {
         factory<BookRepository> { BookRepositoryImpl(get()) }
         factory<AuthorRepository> { AuthorRepositoryImpl(get()) }
         factory<CircleRepository> { CircleRepositoryImpl(get()) }
+        factory<IsdnRepository> { IsdnRepositoryImpl(get(), get()) }
     }
 
     private val useCaseKoinModule = module {
@@ -89,5 +126,6 @@ abstract class BaseApplication : Application() {
         factory<BookDetailViewModel> { (bookId: Long) -> BookDetailViewModel(bookId, get(), get()) }
         factory<CirclesViewModel> { CirclesViewModel(get()) }
         factory<RegisterTopViewModel> { RegisterTopViewModel(androidApplication(), get(), get(), get(), get()) }
+        factory<IsdnDebugViewModel> { IsdnDebugViewModel(get()) }
     }
 }

@@ -35,6 +35,10 @@ dependencies {
     implementation(project(":feature:circles"))
 
     implementation(libs.androidx.room.runtime)  // AppDatabase を構築するため
+    implementation(libs.retrofit.core)
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.logging)
+    implementation(libs.xmlutil.serialization)
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)

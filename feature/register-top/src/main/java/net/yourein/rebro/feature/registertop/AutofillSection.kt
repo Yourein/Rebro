@@ -20,7 +20,9 @@ import androidx.compose.ui.unit.sp
 import net.yourein.rebro.core.resources.DrawableR
 
 @Composable
-internal fun RegisterTopAutofillSection() {
+internal fun RegisterTopAutofillSection(
+    onNavigateToIsdnDebug: () -> Unit = {},
+) {
     Row(
         horizontalArrangement = Arrangement.Center,
         modifier = Modifier.fillMaxWidth()
@@ -47,7 +49,7 @@ internal fun RegisterTopAutofillSection() {
 
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.clickable {}
+            modifier = Modifier.clickable { onNavigateToIsdnDebug() }
         ) {
             Icon(
                 painter = painterResource(DrawableR.barcode_scanner_24dp_fill),

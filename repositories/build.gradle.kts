@@ -24,4 +24,7 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
     implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.retrofit.core)
+    implementation(libs.okhttp)
+    implementation(libs.xmlutil.serialization)
 }
