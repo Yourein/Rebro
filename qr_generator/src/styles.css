@@ -1,0 +1,95 @@
+.rebro-qr-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 10px 16px;
+  margin-bottom: 8px;
+  border: 1px solid #d4d4d4;
+  border-radius: 8px;
+  background-color: #fff;
+  color: #555;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s;
+  box-sizing: border-box;
+}
+
+.rebro-qr-button:hover {
+  background-color: #f5f5f5;
+  border-color: #bbb;
+  color: #333;
+}
+
+.rebro-qr-button::before {
+  content: "";
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='7' height='7'/%3E%3Crect x='14' y='3' width='7' height='7'/%3E%3Crect x='3' y='14' width='7' height='7'/%3E%3Crect x='14' y='14' width='3' height='3'/%3E%3Cline x1='21' y1='14' x2='21' y2='14.01'/%3E%3Cline x1='21' y1='21' x2='21' y2='21.01'/%3E%3Cline x1='17' y1='21' x2='17' y2='21.01'/%3E%3Cline x1='21' y1='17' x2='21' y2='17.01'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  flex-shrink: 0;
+}
+
+.rebro-qr-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100000;
+}
+
+.rebro-qr-modal {
+  background: #fff;
+  border-radius: 12px;
+  padding: 28px 24px;
+  max-width: 380px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+}
+
+.rebro-qr-modal h2 {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.rebro-qr-modal .rebro-qr-subtitle {
+  margin: 0 0 20px;
+  font-size: 12px;
+  color: #999;
+}
+
+.rebro-qr-modal img {
+  display: block;
+  margin: 0 auto;
+  width: 260px;
+  height: 260px;
+  image-rendering: pixelated;
+}
+
+.rebro-qr-modal .rebro-qr-close {
+  margin-top: 20px;
+  padding: 8px 32px;
+  border: 1px solid #d4d4d4;
+  border-radius: 8px;
+  background: #fff;
+  color: #555;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.rebro-qr-modal .rebro-qr-close:hover {
+  background: #f5f5f5;
+}
