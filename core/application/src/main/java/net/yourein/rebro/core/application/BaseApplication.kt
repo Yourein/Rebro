@@ -14,6 +14,7 @@ import net.yourein.rebro.interfaces.BookshelfRepository
 import net.yourein.rebro.interfaces.CircleRepository
 import net.yourein.rebro.interfaces.IsdnRepository
 import net.yourein.rebro.interfaces.NdlRepository
+import net.yourein.rebro.interfaces.SeriesRepository
 import net.yourein.rebro.repositories.AppDatabase
 import net.yourein.rebro.repositories.AuthorRepositoryImpl
 import net.yourein.rebro.repositories.BookRepositoryImpl
@@ -23,6 +24,7 @@ import net.yourein.rebro.repositories.IsdnApiService
 import net.yourein.rebro.repositories.IsdnRepositoryImpl
 import net.yourein.rebro.repositories.NdlApiService
 import net.yourein.rebro.repositories.NdlRepositoryImpl
+import net.yourein.rebro.repositories.SeriesRepositoryImpl
 import net.yourein.rebro.usecase.BooksUseCase
 import net.yourein.rebro.usecase.BookshelfUseCase
 import nl.adaptivity.xmlutil.serialization.DefaultXmlSerializationPolicy
@@ -122,6 +124,7 @@ abstract class BaseApplication : Application() {
         single { get<AppDatabase>().bookDao() }
         single { get<AppDatabase>().authorDao() }
         single { get<AppDatabase>().circleDao() }
+        single { get<AppDatabase>().seriesDao() }
     }
 
     private val repositoryKoinModule = module {
@@ -129,6 +132,7 @@ abstract class BaseApplication : Application() {
         factory<BookRepository> { BookRepositoryImpl(get()) }
         factory<AuthorRepository> { AuthorRepositoryImpl(get()) }
         factory<CircleRepository> { CircleRepositoryImpl(get()) }
+        factory<SeriesRepository> { SeriesRepositoryImpl(get()) }
         factory<IsdnRepository> { IsdnRepositoryImpl(get(), get()) }
         factory<NdlRepository> { NdlRepositoryImpl(get(), get()) }
     }
@@ -143,7 +147,7 @@ abstract class BaseApplication : Application() {
         factory<SearchViewModel> { SearchViewModel(get()) }
         factory<BookDetailViewModel> { (bookId: Long) -> BookDetailViewModel(bookId, get(), get()) }
         factory<CirclesViewModel> { CirclesViewModel(get()) }
-        factory<RegisterTopViewModel> { RegisterTopViewModel(androidApplication(), get(), get(), get(), get()) }
+        factory<RegisterTopViewModel> { RegisterTopViewModel(androidApplication(), get(), get(), get(), get(), get()) }
         factory<IsdnDebugViewModel> { IsdnDebugViewModel(get(), get()) }
     }
 }

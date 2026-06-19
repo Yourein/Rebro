@@ -40,7 +40,11 @@ interface BookRepository {
      * @param authorIds 事前に解決済み（find-or-create 済み）の著者ID
      * @return 追加された本のID
      */
-    suspend fun addBookWithAuthors(book: Book, authorIds: List<Long>): Long
+    suspend fun addBookWithAuthors(
+        book: Book,
+        authorIds: List<Long>,
+        seriesIds: List<Long> = emptyList(),
+    ): Long
 
     suspend fun updateBook(book: Book)
 
@@ -64,4 +68,11 @@ interface BookRepository {
     suspend fun addAuthorToBook(bookId: Long, authorId: Long)
 
     suspend fun removeAuthorFromBook(bookId: Long, authorId: Long)
+
+    // ── 本とシリーズの関連（結合テーブル）────────────────
+    suspend fun addSeriesToBook(bookId: Long, seriesId: Long)
+
+    suspend fun removeSeriesFromBook(bookId: Long, seriesId: Long)
+
+    fun getBooksBySeries(seriesId: Long): Flow<List<BookWithDetailAndAuthors>>
 }

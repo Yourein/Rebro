@@ -15,6 +15,7 @@ import net.yourein.rebro.interfaces.AuthorRepository
 import net.yourein.rebro.interfaces.BookRepository
 import net.yourein.rebro.interfaces.BookshelfRepository
 import net.yourein.rebro.interfaces.CircleRepository
+import net.yourein.rebro.interfaces.SeriesRepository
 import net.yourein.rebro.model.BookType
 import net.yourein.rebro.model.entity.Author
 import net.yourein.rebro.model.entity.Book
@@ -22,6 +23,7 @@ import net.yourein.rebro.model.entity.Bookshelf
 import net.yourein.rebro.model.entity.Circle
 import net.yourein.rebro.model.entity.CommercialBookDetail
 import net.yourein.rebro.model.entity.DoujinBookDetail
+import net.yourein.rebro.model.entity.Series
 import java.io.File
 import java.net.URL
 import java.util.UUID
@@ -33,6 +35,7 @@ class RegisterTopViewModel(
     private val authorRepository: AuthorRepository,
     private val bookshelfRepository: BookshelfRepository,
     private val circleRepository: CircleRepository,
+    private val seriesRepository: SeriesRepository,
 ) : ViewModel() {
 
     private val _lastResult = MutableStateFlow<String?>(null)
@@ -145,6 +148,47 @@ class RegisterTopViewModel(
         }
     }
 
+    // ── シリーズ選択 ──────────────────────────────
+
+    val allSeries: StateFlow<List<Series>> = seriesRepository.getSeries()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    private val _selectedSeries = MutableStateFlow<List<Series>>(emptyList())
+    val selectedSeries: StateFlow<List<Series>> = _selectedSeries.asStateFlow()
+
+    fun toggleSeries(series: Series) {
+        val current = _selectedSeries.value
+        _selectedSeries.value = if (current.any { it.id == series.id }) {
+            current.filter { it.id != series.id }
+        } else {
+            current + series
+        }
+    }
+
+    fun removeSeries(series: Series) {
+        _selectedSeries.value = _selectedSeries.value.filter { it.id != series.id }
+    }
+
+    fun addNewSeries(name: String) {
+        val trimmed = name.trim()
+        if (trimmed.isEmpty()) return
+        viewModelScope.launch {
+            runCatching {
+                seriesRepository.findSeriesByName(trimmed)
+                    ?: Series(
+                        id = seriesRepository.addSeries(Series(name = trimmed)),
+                        name = trimmed,
+                    )
+            }.onSuccess { series ->
+                if (_selectedSeries.value.none { it.id == series.id }) {
+                    _selectedSeries.value = _selectedSeries.value + series
+                }
+            }.onFailure { e ->
+                _lastResult.value = "シリーズの追加に失敗しました：${e.message}"
+            }
+        }
+    }
+
     // ── カバー画像 ───────────────────────────────
 
     fun saveCoverImageFromPicker(uri: Uri) {
@@ -216,6 +260,7 @@ class RegisterTopViewModel(
         viewModelScope.launch {
             runCatching {
                 val authorIds = _selectedAuthors.value.map { it.id }
+                val seriesIds = _selectedSeries.value.map { it.id }
                 val bookId = bookRepository.addBookWithAuthors(
                     book = Book(
                         bookshelfId = bookshelfId,
@@ -225,6 +270,7 @@ class RegisterTopViewModel(
                         thumbnailPath = _coverImagePath.value,
                     ),
                     authorIds = authorIds,
+                    seriesIds = seriesIds,
                 )
                 when (bookType) {
                     BookType.COMMERCIAL -> bookRepository.addCommercialDetail(
@@ -247,6 +293,7 @@ class RegisterTopViewModel(
                 _coverImagePath.value = null
                 _selectedBookshelf.value = null
                 _selectedAuthors.value = emptyList()
+                _selectedSeries.value = emptyList()
                 _selectedCircle.value = null
             }.onFailure { e ->
                 _lastResult.value = "登録に失敗しました：${e.message}"

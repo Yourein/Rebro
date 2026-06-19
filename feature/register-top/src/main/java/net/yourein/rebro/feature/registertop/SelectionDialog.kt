@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.sp
 import net.yourein.rebro.model.entity.Author
 import net.yourein.rebro.model.entity.Bookshelf
 import net.yourein.rebro.model.entity.Circle
+import net.yourein.rebro.model.entity.Series
 
 // ── Author ───────────────────────────────────────
 
@@ -215,6 +216,70 @@ internal fun CircleSelectionSection(
                 onSelectCircle(if (selectedCircle?.id == id) null else circle)
             },
             onNewItemAdded = onAddNewCircle,
+            onDismiss = { showDialog = false },
+        )
+    }
+}
+
+// ── Series ──────────────────────────────────────
+
+@Composable
+internal fun SeriesSelectionSection(
+    selectedSeries: List<Series>,
+    allSeries: List<Series>,
+    onToggleSeries: (Series) -> Unit,
+    onRemoveSeries: (Series) -> Unit,
+    onAddNewSeries: (String) -> Unit,
+) {
+    var showDialog by remember { mutableStateOf(false) }
+
+    Column(
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier
+            .fillMaxWidth(),
+    ) {
+        Text(text = "Series", fontSize = 16.sp)
+
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            selectedSeries.forEach { series ->
+                InputChip(
+                    selected = true,
+                    onClick = { onRemoveSeries(series) },
+                    label = { Text(series.name) },
+                    trailingIcon = {
+                        Icon(
+                            Icons.Default.Close,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                        )
+                    },
+                )
+            }
+        }
+
+        OutlinedButton(onClick = { showDialog = true }) {
+            Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+            Spacer(modifier = Modifier.width(4.dp))
+            Text("Add series")
+        }
+    }
+
+    if (showDialog) {
+        val selectedIds = selectedSeries.map { it.id }.toSet()
+        SelectionDialog(
+            title = "Select Series",
+            items = allSeries.map { it.id to it.name },
+            selectedIds = selectedIds,
+            multiSelect = true,
+            addNewLabel = "New Series",
+            onItemToggled = { id ->
+                allSeries.find { it.id == id }?.let { onToggleSeries(it) }
+            },
+            onNewItemAdded = onAddNewSeries,
             onDismiss = { showDialog = false },
         )
     }

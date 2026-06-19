@@ -10,6 +10,7 @@ import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import net.yourein.rebro.model.entity.Book
 import net.yourein.rebro.model.entity.BookAuthor
+import net.yourein.rebro.model.entity.BookSeries
 import net.yourein.rebro.model.entity.CommercialBookDetail
 import net.yourein.rebro.model.entity.DoujinBookDetail
 import net.yourein.rebro.model.relation.BookWithDetailAndAuthors
@@ -96,10 +97,17 @@ interface BookDao {
      * 「著者リンクの無い本」が残ることはない。
      */
     @Transaction
-    suspend fun insertBookWithAuthors(book: Book, authorIds: List<Long>): Long {
+    suspend fun insertBookWithAuthors(
+        book: Book,
+        authorIds: List<Long>,
+        seriesIds: List<Long> = emptyList(),
+    ): Long {
         val bookId = insertBook(book)
         authorIds.forEach { authorId ->
             insertBookAuthor(BookAuthor(bookId = bookId, authorId = authorId))
+        }
+        seriesIds.forEach { seriesId ->
+            insertBookSeries(BookSeries(bookId = bookId, seriesId = seriesId))
         }
         return bookId
     }
@@ -136,4 +144,22 @@ interface BookDao {
 
     @Delete
     suspend fun deleteBookAuthor(bookAuthor: BookAuthor)
+
+    // ── 本とシリーズの関連（結合テーブル）────────────────
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertBookSeries(bookSeries: BookSeries)
+
+    @Delete
+    suspend fun deleteBookSeries(bookSeries: BookSeries)
+
+    @Transaction
+    @Query(
+        """
+        SELECT b.* FROM books b
+        INNER JOIN book_series bs ON b.id = bs.book_id
+        WHERE bs.series_id = :seriesId
+        ORDER BY b.id ASC
+        """
+    )
+    fun getBooksBySeries(seriesId: Long): Flow<List<BookWithDetailAndAuthors>>
 }

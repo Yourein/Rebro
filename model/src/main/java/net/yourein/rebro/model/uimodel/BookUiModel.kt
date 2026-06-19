@@ -3,6 +3,7 @@ package net.yourein.rebro.model.uimodel
 import net.yourein.rebro.model.BookType
 import net.yourein.rebro.model.ReadingStatus
 import net.yourein.rebro.model.entity.Author
+import net.yourein.rebro.model.entity.Series
 import net.yourein.rebro.model.relation.BookWithDetailAndAuthors
 
 /**
@@ -26,6 +27,9 @@ sealed class BookUiModel {
     /** 著者名のリスト。同人誌でも作家として複数名を持ちうる。 */
     abstract val authors: List<String>
 
+    /** シリーズ名のリスト。 */
+    abstract val seriesNames: List<String>
+
     /**
      * リスト表示などで 1 行に出すための著者表記。
      * 商業誌は著者名を連結し、同人誌はサークル名を用いる。
@@ -45,6 +49,7 @@ sealed class BookUiModel {
         override val coverImageUrl: String?,
         override val readingStatus: ReadingStatus,
         override val authors: List<String>,
+        override val seriesNames: List<String>,
         val isbn: String?,
         val publisher: String?,
     ) : BookUiModel()
@@ -58,6 +63,7 @@ sealed class BookUiModel {
         override val coverImageUrl: String?,
         override val readingStatus: ReadingStatus,
         override val authors: List<String>,
+        override val seriesNames: List<String>,
         val circleId: Long?,
         val circleName: String?,
         val isdn: String?,
@@ -72,6 +78,7 @@ sealed class BookUiModel {
  */
 fun BookWithDetailAndAuthors.toUiModel(): BookUiModel {
     val authorNames = authors.map(Author::name)
+    val seriesNameList = series.map(Series::name)
     return when (book.bookType) {
         BookType.COMMERCIAL -> BookUiModel.Commercial(
             id = book.id,
@@ -81,6 +88,7 @@ fun BookWithDetailAndAuthors.toUiModel(): BookUiModel {
             coverImageUrl = book.thumbnailPath,
             readingStatus = book.readingStatus,
             authors = authorNames,
+            seriesNames = seriesNameList,
             isbn = commercialDetail?.isbn,
             publisher = commercialDetail?.publisher,
         )
@@ -93,6 +101,7 @@ fun BookWithDetailAndAuthors.toUiModel(): BookUiModel {
             coverImageUrl = book.thumbnailPath,
             readingStatus = book.readingStatus,
             authors = authorNames,
+            seriesNames = seriesNameList,
             circleId = doujinDetail?.detail?.circleId,
             circleName = doujinDetail?.circle?.name,
             isdn = doujinDetail?.detail?.isdn,

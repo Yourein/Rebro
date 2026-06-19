@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import net.yourein.rebro.interfaces.BookRepository
 import net.yourein.rebro.model.entity.Book
 import net.yourein.rebro.model.entity.BookAuthor
+import net.yourein.rebro.model.entity.BookSeries
 import net.yourein.rebro.model.entity.CommercialBookDetail
 import net.yourein.rebro.model.entity.DoujinBookDetail
 import net.yourein.rebro.model.relation.BookWithDetailAndAuthors
@@ -38,8 +39,12 @@ class BookRepositoryImpl(
     override suspend fun addBook(book: Book): Long =
         bookDao.insertBook(book)
 
-    override suspend fun addBookWithAuthors(book: Book, authorIds: List<Long>): Long =
-        bookDao.insertBookWithAuthors(book, authorIds)
+    override suspend fun addBookWithAuthors(
+        book: Book,
+        authorIds: List<Long>,
+        seriesIds: List<Long>,
+    ): Long =
+        bookDao.insertBookWithAuthors(book, authorIds, seriesIds)
 
     override suspend fun updateBook(book: Book) =
         bookDao.updateBook(book)
@@ -73,4 +78,14 @@ class BookRepositoryImpl(
 
     override suspend fun removeAuthorFromBook(bookId: Long, authorId: Long) =
         bookDao.deleteBookAuthor(BookAuthor(bookId = bookId, authorId = authorId))
+
+    // ── 本とシリーズの関連（結合テーブル）────────────────
+    override suspend fun addSeriesToBook(bookId: Long, seriesId: Long) =
+        bookDao.insertBookSeries(BookSeries(bookId = bookId, seriesId = seriesId))
+
+    override suspend fun removeSeriesFromBook(bookId: Long, seriesId: Long) =
+        bookDao.deleteBookSeries(BookSeries(bookId = bookId, seriesId = seriesId))
+
+    override fun getBooksBySeries(seriesId: Long): Flow<List<BookWithDetailAndAuthors>> =
+        bookDao.getBooksBySeries(seriesId)
 }

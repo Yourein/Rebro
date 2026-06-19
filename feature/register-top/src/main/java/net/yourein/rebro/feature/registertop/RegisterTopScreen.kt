@@ -37,6 +37,7 @@ import net.yourein.rebro.model.BookType
 import net.yourein.rebro.model.entity.Author
 import net.yourein.rebro.model.entity.Bookshelf
 import net.yourein.rebro.model.entity.Circle
+import net.yourein.rebro.model.entity.Series
 import org.koin.androidx.compose.koinViewModel
 
 /** 書籍登録画面。 */
@@ -54,6 +55,8 @@ fun RegisterTopScreen(
     val allAuthors by viewModel.allAuthors.collectAsStateWithLifecycle()
     val selectedCircle by viewModel.selectedCircle.collectAsStateWithLifecycle()
     val allCircles by viewModel.allCircles.collectAsStateWithLifecycle()
+    val selectedSeries by viewModel.selectedSeries.collectAsStateWithLifecycle()
+    val allSeries by viewModel.allSeries.collectAsStateWithLifecycle()
 
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
@@ -72,6 +75,8 @@ fun RegisterTopScreen(
         allAuthors = allAuthors,
         selectedCircle = selectedCircle,
         allCircles = allCircles,
+        selectedSeries = selectedSeries,
+        allSeries = allSeries,
         onRegister = viewModel::registerBook,
         onPickFromGallery = {
             photoPickerLauncher.launch(
@@ -87,6 +92,9 @@ fun RegisterTopScreen(
         onAddNewAuthor = viewModel::addNewAuthor,
         onSetCircle = viewModel::setCircle,
         onAddNewCircle = viewModel::addNewCircle,
+        onToggleSeries = viewModel::toggleSeries,
+        onRemoveSeries = viewModel::removeSeries,
+        onAddNewSeries = viewModel::addNewSeries,
     )
 }
 
@@ -102,6 +110,8 @@ internal fun RegisterTopScreen(
     allAuthors: List<Author>,
     selectedCircle: Circle?,
     allCircles: List<Circle>,
+    selectedSeries: List<Series>,
+    allSeries: List<Series>,
     onRegister: (title: String, subtitle: String, bookType: BookType, publisher: String) -> Unit,
     onPickFromGallery: () -> Unit,
     onUrlSpecified: (String) -> Unit,
@@ -113,6 +123,9 @@ internal fun RegisterTopScreen(
     onAddNewAuthor: (String) -> Unit,
     onSetCircle: (Circle?) -> Unit,
     onAddNewCircle: (String) -> Unit,
+    onToggleSeries: (Series) -> Unit,
+    onRemoveSeries: (Series) -> Unit,
+    onAddNewSeries: (String) -> Unit,
 ) {
     var title by remember { mutableStateOf("") }
     var subtitle by remember { mutableStateOf("") }
@@ -180,6 +193,14 @@ internal fun RegisterTopScreen(
             onToggleAuthor = onToggleAuthor,
             onRemoveAuthor = onRemoveAuthor,
             onAddNewAuthor = onAddNewAuthor,
+        )
+
+        SeriesSelectionSection(
+            selectedSeries = selectedSeries,
+            allSeries = allSeries,
+            onToggleSeries = onToggleSeries,
+            onRemoveSeries = onRemoveSeries,
+            onAddNewSeries = onAddNewSeries,
         )
 
         when (bookType) {
@@ -269,6 +290,8 @@ private fun RegisterTopScreenPreview() {
             ),
             selectedCircle = null,
             allCircles = emptyList(),
+            selectedSeries = emptyList(),
+            allSeries = emptyList(),
             onRegister = { _, _, _, _ -> },
             onPickFromGallery = {},
             onUrlSpecified = {},
@@ -280,6 +303,9 @@ private fun RegisterTopScreenPreview() {
             onAddNewAuthor = {},
             onSetCircle = {},
             onAddNewCircle = {},
+            onToggleSeries = {},
+            onRemoveSeries = {},
+            onAddNewSeries = {},
         )
     }
 }

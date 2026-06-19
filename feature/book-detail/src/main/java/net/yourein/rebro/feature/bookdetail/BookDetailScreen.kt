@@ -96,6 +96,7 @@ private fun BookDetailScreenCommercialPreview() {
                     coverImageUrl = null,
                     readingStatus = ReadingStatus.READING,
                     authors = listOf("夏目漱石"),
+                    seriesNames = emptyList(),
                     isbn = "978-4-00-310101-8",
                     publisher = "岩波書店",
                 )
@@ -122,6 +123,7 @@ private fun BookDetailScreenDoujinPreview() {
                     coverImageUrl = null,
                     readingStatus = ReadingStatus.UNREAD,
                     authors = listOf("作家A", "作家B"),
+                    seriesNames = emptyList(),
                     circleId = 1L,
                     circleName = "サークル名",
                     isdn = "ISDN-0000-0000",
