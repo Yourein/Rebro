@@ -21,6 +21,7 @@ import net.yourein.rebro.core.resources.DrawableR
 
 @Composable
 internal fun RegisterTopAutofillSection(
+    onNavigateToQrScan: () -> Unit = {},
     onNavigateToIsdnDebug: () -> Unit = {},
 ) {
     Row(
@@ -29,7 +30,7 @@ internal fun RegisterTopAutofillSection(
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.clickable {}
+            modifier = Modifier.clickable { onNavigateToQrScan() }
         ) {
             Icon(
                 painter = painterResource(DrawableR.qr_code_scanner_24dp_fill),

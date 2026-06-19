@@ -49,6 +49,7 @@ import net.yourein.rebro.core.navigation.destinations.BookDetail
 import net.yourein.rebro.core.navigation.destinations.BookshelfDetail
 import net.yourein.rebro.core.navigation.destinations.Bookshelfs
 import net.yourein.rebro.core.navigation.destinations.IsdnDebug
+import net.yourein.rebro.core.navigation.destinations.QrScan
 import net.yourein.rebro.core.navigation.destinations.RegisterTop
 import net.yourein.rebro.core.navigation.destinations.Search
 import net.yourein.rebro.core.navigation.destinations.SearchTop
@@ -58,6 +59,7 @@ import net.yourein.rebro.feature.bookdetail.BookDetailScreen
 import net.yourein.rebro.feature.circles.CirclesScreen
 import net.yourein.rebro.feature.registertop.AutofillResult
 import net.yourein.rebro.feature.registertop.IsdnDebugScreen
+import net.yourein.rebro.feature.registertop.QrScanScreen
 import net.yourein.rebro.feature.registertop.RegisterTopScreen
 import net.yourein.rebro.feature.search.SearchScreen
 import net.yourein.rebro.feature.searchtop.SearchTopScreen
@@ -145,6 +147,7 @@ fun RebroNavDisplay(
                 }
                 entry<RegisterTop> {
                     RegisterTopScreen(
+                        navigateToQrScan = { backStack.add(QrScan) },
                         navigateToIsdnDebug = { backStack.add(IsdnDebug) },
                         pendingAutofill = pendingAutofill,
                         onAutofillConsumed = { pendingAutofill = null },
@@ -157,6 +160,9 @@ fun RebroNavDisplay(
                             backStack.removeLastOrNull()
                         },
                     )
+                }
+                entry<QrScan> {
+                    QrScanScreen()
                 }
                 entry<Bookshelfs> { PlaceholderScreen("Bookshelfs") }
                 entry<Authors> { PlaceholderScreen("Authors") }

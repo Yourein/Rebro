@@ -41,6 +41,7 @@ import org.koin.androidx.compose.koinViewModel
 /** 書籍登録画面。 */
 @Composable
 fun RegisterTopScreen(
+    navigateToQrScan: () -> Unit = {},
     navigateToIsdnDebug: () -> Unit = {},
     pendingAutofill: AutofillResult? = null,
     onAutofillConsumed: () -> Unit = {},
@@ -76,6 +77,7 @@ fun RegisterTopScreen(
     }
 
     RegisterTopScreen(
+        navigateToQrScan = navigateToQrScan,
         navigateToIsdnDebug = navigateToIsdnDebug,
         lastResult = lastResult,
         title = title,
@@ -119,6 +121,7 @@ fun RegisterTopScreen(
 
 @Composable
 internal fun RegisterTopScreen(
+    navigateToQrScan: () -> Unit,
     navigateToIsdnDebug: () -> Unit,
     lastResult: String?,
     title: String,
@@ -174,6 +177,7 @@ internal fun RegisterTopScreen(
         HorizontalDivider()
 
         RegisterTopAutofillSection(
+            onNavigateToQrScan = navigateToQrScan,
             onNavigateToIsdnDebug = navigateToIsdnDebug,
         )
 
@@ -290,6 +294,7 @@ private val BookType.displayLabel: String
 private fun RegisterTopScreenPreview() {
     RebroTheme {
         RegisterTopScreen(
+            navigateToQrScan = {},
             navigateToIsdnDebug = {},
             lastResult = "登録しました（bookId=3）：サンプル本 #3",
             title = "",
