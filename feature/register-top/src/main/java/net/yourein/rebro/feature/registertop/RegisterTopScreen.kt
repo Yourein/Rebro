@@ -24,9 +24,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -49,8 +46,18 @@ fun RegisterTopScreen(
     onAutofillConsumed: () -> Unit = {},
     viewModel: RegisterTopViewModel = koinViewModel(),
 ) {
+    LaunchedEffect(pendingAutofill) {
+        if (pendingAutofill != null) {
+            viewModel.applyAutofill(pendingAutofill)
+            onAutofillConsumed()
+        }
+    }
+
     val lastResult by viewModel.lastResult.collectAsStateWithLifecycle()
-    val registrationSuccess by viewModel.registrationSuccess.collectAsStateWithLifecycle()
+    val title by viewModel.title.collectAsStateWithLifecycle()
+    val subtitle by viewModel.subtitle.collectAsStateWithLifecycle()
+    val bookType by viewModel.bookType.collectAsStateWithLifecycle()
+    val publisher by viewModel.publisher.collectAsStateWithLifecycle()
     val coverImagePath by viewModel.coverImagePath.collectAsStateWithLifecycle()
     val isDownloading by viewModel.isDownloading.collectAsStateWithLifecycle()
     val selectedBookshelf by viewModel.selectedBookshelf.collectAsStateWithLifecycle()
@@ -71,10 +78,12 @@ fun RegisterTopScreen(
     RegisterTopScreen(
         navigateToIsdnDebug = navigateToIsdnDebug,
         lastResult = lastResult,
-        registrationSuccess = registrationSuccess,
+        title = title,
+        subtitle = subtitle,
+        bookType = bookType,
+        publisher = publisher,
         coverImagePath = coverImagePath,
         isDownloading = isDownloading,
-        pendingAutofill = pendingAutofill,
         selectedBookshelf = selectedBookshelf,
         allBookshelves = allBookshelves,
         selectedAuthors = selectedAuthors,
@@ -83,12 +92,11 @@ fun RegisterTopScreen(
         allCircles = allCircles,
         selectedSeries = selectedSeries,
         allSeries = allSeries,
+        onTitleChange = viewModel::setTitle,
+        onSubtitleChange = viewModel::setSubtitle,
+        onBookTypeChange = viewModel::setBookType,
+        onPublisherChange = viewModel::setPublisher,
         onRegister = viewModel::registerBook,
-        onConsumeRegistrationSuccess = viewModel::consumeRegistrationSuccess,
-        onConsumeAutofill = { result ->
-            viewModel.applyAutofill(result)
-            onAutofillConsumed()
-        },
         onPickFromGallery = {
             photoPickerLauncher.launch(
                 PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
@@ -113,10 +121,12 @@ fun RegisterTopScreen(
 internal fun RegisterTopScreen(
     navigateToIsdnDebug: () -> Unit,
     lastResult: String?,
-    registrationSuccess: Boolean,
+    title: String,
+    subtitle: String,
+    bookType: BookType,
+    publisher: String,
     coverImagePath: String?,
     isDownloading: Boolean,
-    pendingAutofill: AutofillResult?,
     selectedBookshelf: Bookshelf?,
     allBookshelves: List<Bookshelf>,
     selectedAuthors: List<Author>,
@@ -125,9 +135,11 @@ internal fun RegisterTopScreen(
     allCircles: List<Circle>,
     selectedSeries: List<Series>,
     allSeries: List<Series>,
-    onRegister: (title: String, subtitle: String, bookType: BookType, publisher: String) -> Unit,
-    onConsumeRegistrationSuccess: () -> Unit,
-    onConsumeAutofill: (AutofillResult) -> Unit,
+    onTitleChange: (String) -> Unit,
+    onSubtitleChange: (String) -> Unit,
+    onBookTypeChange: (BookType) -> Unit,
+    onPublisherChange: (String) -> Unit,
+    onRegister: () -> Unit,
     onPickFromGallery: () -> Unit,
     onUrlSpecified: (String) -> Unit,
     onClearImage: () -> Unit,
@@ -142,29 +154,6 @@ internal fun RegisterTopScreen(
     onRemoveSeries: (Series) -> Unit,
     onAddNewSeries: (String) -> Unit,
 ) {
-    var title by remember { mutableStateOf("") }
-    var subtitle by remember { mutableStateOf("") }
-    var bookType by remember { mutableStateOf(BookType.COMMERCIAL) }
-    var publisher by remember { mutableStateOf("") }
-
-    LaunchedEffect(pendingAutofill) {
-        if (pendingAutofill != null) {
-            title = pendingAutofill.title
-            bookType = pendingAutofill.bookType
-            publisher = pendingAutofill.publisher
-            onConsumeAutofill(pendingAutofill)
-        }
-    }
-
-    LaunchedEffect(registrationSuccess) {
-        if (registrationSuccess) {
-            title = ""
-            subtitle = ""
-            publisher = ""
-            onConsumeRegistrationSuccess()
-        }
-    }
-
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp),
         modifier = Modifier
@@ -199,7 +188,7 @@ internal fun RegisterTopScreen(
             BookType.entries.forEach { type ->
                 FilterChip(
                     selected = bookType == type,
-                    onClick = { bookType = type },
+                    onClick = { onBookTypeChange(type) },
                     label = { Text(type.displayLabel) },
                 )
             }
@@ -207,14 +196,14 @@ internal fun RegisterTopScreen(
 
         OutlinedTextField(
             value = title,
-            onValueChange = { title = it },
+            onValueChange = onTitleChange,
             label = { Text("Title (Required)") },
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
         )
         OutlinedTextField(
             value = subtitle,
-            onValueChange = { subtitle = it },
+            onValueChange = onSubtitleChange,
             label = { Text("Subtitle") },
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
@@ -240,7 +229,7 @@ internal fun RegisterTopScreen(
             BookType.COMMERCIAL -> {
                 OutlinedTextField(
                     value = publisher,
-                    onValueChange = { publisher = it },
+                    onValueChange = onPublisherChange,
                     label = { Text("Publisher") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
@@ -277,7 +266,7 @@ internal fun RegisterTopScreen(
         HorizontalDivider()
 
         Button(
-            onClick = { onRegister(title, subtitle, bookType, publisher) },
+            onClick = onRegister,
             modifier = Modifier.fillMaxWidth(),
         ) {
             Text("Register")
@@ -303,10 +292,12 @@ private fun RegisterTopScreenPreview() {
         RegisterTopScreen(
             navigateToIsdnDebug = {},
             lastResult = "登録しました（bookId=3）：サンプル本 #3",
-            registrationSuccess = false,
+            title = "",
+            subtitle = "",
+            bookType = BookType.COMMERCIAL,
+            publisher = "",
             coverImagePath = null,
             isDownloading = false,
-            pendingAutofill = null,
             selectedBookshelf = Bookshelf(id = 1, name = "デバッグ本棚"),
             allBookshelves = listOf(
                 Bookshelf(id = 1, name = "デバッグ本棚"),
@@ -322,9 +313,11 @@ private fun RegisterTopScreenPreview() {
             allCircles = emptyList(),
             selectedSeries = emptyList(),
             allSeries = emptyList(),
-            onRegister = { _, _, _, _ -> },
-            onConsumeRegistrationSuccess = {},
-            onConsumeAutofill = {},
+            onTitleChange = {},
+            onSubtitleChange = {},
+            onBookTypeChange = {},
+            onPublisherChange = {},
+            onRegister = {},
             onPickFromGallery = {},
             onUrlSpecified = {},
             onClearImage = {},

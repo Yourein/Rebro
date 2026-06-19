@@ -50,12 +50,24 @@ class RegisterTopViewModel(
     private val _lastResult = MutableStateFlow<String?>(null)
     val lastResult: StateFlow<String?> = _lastResult.asStateFlow()
 
-    private val _registrationSuccess = MutableStateFlow(false)
-    val registrationSuccess: StateFlow<Boolean> = _registrationSuccess.asStateFlow()
+    // ── フォーム入力 ────────────────────────────
 
-    fun consumeRegistrationSuccess() {
-        _registrationSuccess.value = false
-    }
+    private val _title = MutableStateFlow("")
+    val title: StateFlow<String> = _title.asStateFlow()
+
+    private val _subtitle = MutableStateFlow("")
+    val subtitle: StateFlow<String> = _subtitle.asStateFlow()
+
+    private val _bookType = MutableStateFlow(BookType.COMMERCIAL)
+    val bookType: StateFlow<BookType> = _bookType.asStateFlow()
+
+    private val _publisher = MutableStateFlow("")
+    val publisher: StateFlow<String> = _publisher.asStateFlow()
+
+    fun setTitle(value: String) { _title.value = value }
+    fun setSubtitle(value: String) { _subtitle.value = value }
+    fun setBookType(value: BookType) { _bookType.value = value }
+    fun setPublisher(value: String) { _publisher.value = value }
 
     private val _coverImagePath = MutableStateFlow<String?>(null)
     val coverImagePath: StateFlow<String?> = _coverImagePath.asStateFlow()
@@ -258,6 +270,10 @@ class RegisterTopViewModel(
     // ── Autofill ─────────────────────────────────
 
     fun applyAutofill(result: AutofillResult) {
+        _title.value = result.title
+        _subtitle.value = ""
+        _bookType.value = result.bookType
+        _publisher.value = result.publisher
         _selectedAuthors.value = emptyList()
         _selectedCircle.value = null
         _selectedSeries.value = emptyList()
@@ -271,13 +287,8 @@ class RegisterTopViewModel(
 
     // ── 登録 ─────────────────────────────────────
 
-    fun registerBook(
-        title: String,
-        subtitle: String,
-        bookType: BookType,
-        publisher: String,
-    ) {
-        val trimmedTitle = title.trim()
+    fun registerBook() {
+        val trimmedTitle = _title.value.trim()
         if (trimmedTitle.isEmpty()) {
             _lastResult.value = "タイトルを入力してください"
             return
@@ -287,6 +298,7 @@ class RegisterTopViewModel(
             _lastResult.value = "本棚を選択してください"
             return
         }
+        val bookType = _bookType.value
         viewModelScope.launch {
             runCatching {
                 val authorIds = _selectedAuthors.value.map { it.id }
@@ -295,7 +307,7 @@ class RegisterTopViewModel(
                     book = Book(
                         bookshelfId = bookshelfId,
                         title = trimmedTitle,
-                        subtitle = subtitle.trim().ifEmpty { null },
+                        subtitle = _subtitle.value.trim().ifEmpty { null },
                         bookType = bookType,
                         thumbnailPath = _coverImagePath.value,
                     ),
@@ -306,7 +318,7 @@ class RegisterTopViewModel(
                     BookType.COMMERCIAL -> bookRepository.addCommercialDetail(
                         CommercialBookDetail(
                             bookId = bookId,
-                            publisher = publisher.trim().ifEmpty { null },
+                            publisher = _publisher.value.trim().ifEmpty { null },
                         )
                     )
 
@@ -320,12 +332,14 @@ class RegisterTopViewModel(
                 bookId
             }.onSuccess { bookId ->
                 _lastResult.value = "登録しました（bookId=$bookId）：$trimmedTitle"
+                _title.value = ""
+                _subtitle.value = ""
+                _publisher.value = ""
                 _coverImagePath.value = null
                 _selectedBookshelf.value = null
                 _selectedAuthors.value = emptyList()
                 _selectedSeries.value = emptyList()
                 _selectedCircle.value = null
-                _registrationSuccess.value = true
             }.onFailure { e ->
                 _lastResult.value = "登録に失敗しました：${e.message}"
             }
