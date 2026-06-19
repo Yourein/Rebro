@@ -32,6 +32,7 @@ dependencies {
     implementation(project(":feature:search-top"))
     implementation(project(":feature:register-top"))
     implementation(project(":feature:book-detail"))
+    implementation(project(":feature:circles"))
 
     implementation(libs.androidx.room.runtime)  // AppDatabase を構築するため
 

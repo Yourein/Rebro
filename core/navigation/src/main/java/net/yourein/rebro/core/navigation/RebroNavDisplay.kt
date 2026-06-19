@@ -37,6 +37,7 @@ import androidx.navigation3.ui.NavDisplay
 import net.yourein.rebro.core.navigation.destinations.AllAuthors
 import net.yourein.rebro.core.navigation.destinations.AllBooks
 import net.yourein.rebro.core.navigation.destinations.AllBookshelves
+import net.yourein.rebro.core.navigation.destinations.AllCircles
 import net.yourein.rebro.core.navigation.destinations.AuthorDetail
 import net.yourein.rebro.core.navigation.destinations.Authors
 import net.yourein.rebro.core.navigation.destinations.BookDetail
@@ -48,6 +49,7 @@ import net.yourein.rebro.core.navigation.destinations.SearchTop
 import net.yourein.rebro.core.resources.DrawableR
 import net.yourein.rebro.core.resources.RebroColor
 import net.yourein.rebro.feature.bookdetail.BookDetailScreen
+import net.yourein.rebro.feature.circles.CirclesScreen
 import net.yourein.rebro.feature.registertop.RegisterTopScreen
 import net.yourein.rebro.feature.search.SearchScreen
 import net.yourein.rebro.feature.searchtop.SearchTopScreen
@@ -126,6 +128,7 @@ fun RebroNavDisplay(
                         navigateToAllBooks = { backStack.add(AllBooks) },
                         navigateToAllBookshelves = { backStack.add(AllBookshelves) },
                         navigateToAllAuthors = { backStack.add(AllAuthors) },
+                        navigateToAllCircles = { backStack.add(AllCircles) },
                         navigateToBookDetail = { bookId -> backStack.add(BookDetail(bookId)) },
                     )
                 }
@@ -146,6 +149,11 @@ fun RebroNavDisplay(
                 entry<AllBooks> { PlaceholderScreen("AllBooks") }
                 entry<AllBookshelves> { PlaceholderScreen("AllBookshelves") }
                 entry<AllAuthors> { PlaceholderScreen("AllAuthors") }
+                entry<AllCircles> {
+                    CirclesScreen(
+                        navigateBack = { backStack.removeLastOrNull() },
+                    )
+                }
                 entry<Search> {
                     SearchScreen(
                         navigateToBookDetail = { bookId -> backStack.add(BookDetail(bookId)) },
