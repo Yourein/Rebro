@@ -127,7 +127,7 @@ fun IsdnDebugScreen(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(
-                    text = "カメラの権限がないため、バーコードスキャナーを起動できません",
+                    text = "Allow this app to use camera for scanning a BarCode",
                     color = MaterialTheme.colorScheme.error,
                     fontSize = 14.sp,
                 )
@@ -135,7 +135,7 @@ fun IsdnDebugScreen(
                     onClick = { permissionLauncher.launch(Manifest.permission.CAMERA) },
                     modifier = Modifier.fillMaxWidth(),
                 ) {
-                    Text("カメラの権限を許可する")
+                    Text("Allow Camera")
                 }
             }
         }
@@ -162,8 +162,8 @@ fun IsdnDebugScreen(
             label = {
                 Text(
                     when (mode) {
-                        LookupMode.ISDN -> "ISDN番号"
-                        LookupMode.ISBN -> "ISBN番号"
+                        LookupMode.ISDN -> "ISDN"
+                        LookupMode.ISBN -> "ISBN"
                     }
                 )
             },
@@ -208,7 +208,7 @@ fun IsdnDebugScreen(
                 },
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text("この内容でフォームに適用")
+                Text("Apply to Form")
             }
         }
     }
@@ -221,7 +221,7 @@ private fun IsbnResultSection(response: SruResponse) {
 
         val records = response.records?.record
         if (records.isNullOrEmpty()) {
-            Text("結果なし")
+            Text("No Result")
             return
         }
 
@@ -248,7 +248,7 @@ private fun DcSection(dc: DcRecord) {
 private fun IsdnResultSection(response: IsdnResponse) {
     val items = response.item
     if (items.isNullOrEmpty()) {
-        Text("結果なし")
+        Text("No Result")
         return
     }
 
