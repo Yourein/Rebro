@@ -57,7 +57,7 @@ internal fun AuthorSelectionSection(
         modifier = Modifier
             .fillMaxWidth(),
     ) {
-        Text(text = "著者", fontSize = 16.sp)
+        Text(text = "Author(s)", fontSize = 16.sp)
 
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -83,18 +83,18 @@ internal fun AuthorSelectionSection(
         OutlinedButton(onClick = { showDialog = true }) {
             Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
             Spacer(modifier = Modifier.width(4.dp))
-            Text("選択 / 追加")
+            Text("Add author")
         }
     }
 
     if (showDialog) {
         val selectedIds = selectedAuthors.map { it.id }.toSet()
         SelectionDialog(
-            title = "著者を選択",
+            title = "Select Author",
             items = allAuthors.map { it.id to it.name },
             selectedIds = selectedIds,
             multiSelect = true,
-            addNewLabel = "新しい著者名",
+            addNewLabel = "New Author",
             onItemToggled = { id ->
                 allAuthors.find { it.id == id }?.let { onToggleAuthor(it) }
             },
@@ -120,7 +120,7 @@ internal fun BookshelfSelectionSection(
         modifier = Modifier
             .fillMaxWidth(),
     ) {
-        Text(text = "本棚", fontSize = 16.sp)
+        Text(text = "Bookshelf", fontSize = 16.sp)
 
         if (selectedBookshelf != null) {
             InputChip(
@@ -140,18 +140,18 @@ internal fun BookshelfSelectionSection(
         OutlinedButton(onClick = { showDialog = true }) {
             Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
             Spacer(modifier = Modifier.width(4.dp))
-            Text(if (selectedBookshelf == null) "選択 / 追加" else "変更")
+            Text(if (selectedBookshelf == null) "Select Bookshelf" else "Change Bookshelf")
         }
     }
 
     if (showDialog) {
         val selectedIds = listOfNotNull(selectedBookshelf?.id).toSet()
         SelectionDialog(
-            title = "本棚を選択",
+            title = "Select Bookshelf",
             items = allBookshelves.map { it.id to it.name },
             selectedIds = selectedIds,
             multiSelect = false,
-            addNewLabel = "新しい本棚名",
+            addNewLabel = "New Bookshelf",
             onItemToggled = { id ->
                 val bookshelf = allBookshelves.find { it.id == id }
                 onSelectBookshelf(if (selectedBookshelf?.id == id) null else bookshelf)
@@ -178,7 +178,7 @@ internal fun CircleSelectionSection(
         modifier = Modifier
             .fillMaxWidth(),
     ) {
-        Text(text = "サークル", fontSize = 16.sp)
+        Text(text = "Circle", fontSize = 16.sp)
 
         if (selectedCircle != null) {
             InputChip(
@@ -198,18 +198,18 @@ internal fun CircleSelectionSection(
         OutlinedButton(onClick = { showDialog = true }) {
             Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
             Spacer(modifier = Modifier.width(4.dp))
-            Text(if (selectedCircle == null) "選択 / 追加" else "変更")
+            Text(if (selectedCircle == null) "Select circle" else "Change circle")
         }
     }
 
     if (showDialog) {
         val selectedIds = listOfNotNull(selectedCircle?.id).toSet()
         SelectionDialog(
-            title = "サークルを選択",
+            title = "Select circle",
             items = allCircles.map { it.id to it.name },
             selectedIds = selectedIds,
             multiSelect = false,
-            addNewLabel = "新しいサークル名",
+            addNewLabel = "New circle",
             onItemToggled = { id ->
                 val circle = allCircles.find { it.id == id }
                 onSelectCircle(if (selectedCircle?.id == id) null else circle)
@@ -249,7 +249,7 @@ private fun SelectionDialog(
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
-                    label = { Text("検索") },
+                    label = { Text("Search") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                 )
@@ -260,7 +260,7 @@ private fun SelectionDialog(
                     if (filteredItems.isEmpty()) {
                         item {
                             Text(
-                                text = "該当なし",
+                                text = "Nothing found",
                                 fontSize = 14.sp,
                                 modifier = Modifier.padding(vertical = 12.dp),
                             )
@@ -307,14 +307,14 @@ private fun SelectionDialog(
                         enabled = newItemName.isNotBlank(),
                         modifier = Modifier.height(60.dp)
                     ) {
-                        Text("追加")
+                        Text("Add")
                     }
                 }
             }
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text("完了")
+                Text("OK")
             }
         },
     )

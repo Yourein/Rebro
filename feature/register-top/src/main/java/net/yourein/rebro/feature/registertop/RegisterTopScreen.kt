@@ -123,9 +123,7 @@ internal fun RegisterTopScreen(
             .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top))
             .verticalScroll(rememberScrollState())
             .windowInsetsPadding(
-                WindowInsets.safeDrawing.only(
-                    WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom
-                )
+                WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)
             )
             .padding(16.dp),
     ) {
@@ -159,14 +157,14 @@ internal fun RegisterTopScreen(
         OutlinedTextField(
             value = title,
             onValueChange = { title = it },
-            label = { Text("タイトル（必須）") },
+            label = { Text("Title (Required)") },
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
         )
         OutlinedTextField(
             value = subtitle,
             onValueChange = { subtitle = it },
-            label = { Text("サブタイトル") },
+            label = { Text("Subtitle") },
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
         )
@@ -184,7 +182,7 @@ internal fun RegisterTopScreen(
                 OutlinedTextField(
                     value = publisher,
                     onValueChange = { publisher = it },
-                    label = { Text("出版社") },
+                    label = { Text("Publisher") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                 )
@@ -228,7 +226,7 @@ internal fun RegisterTopScreen(
             },
             modifier = Modifier.fillMaxWidth(),
         ) {
-            Text("この内容で登録")
+            Text("Register")
         }
 
         lastResult?.let {
