@@ -54,8 +54,6 @@ class RegisterTopViewModel(
         )
 
     private val _lastResult = MutableStateFlow<String?>(null)
-
-    /** 直近の登録操作の結果メッセージ（成功・失敗どちらも）。 */
     val lastResult: StateFlow<String?> = _lastResult.asStateFlow()
 
     private val _coverImagePath = MutableStateFlow<String?>(null)
@@ -63,6 +61,79 @@ class RegisterTopViewModel(
 
     private val _isDownloading = MutableStateFlow(false)
     val isDownloading: StateFlow<Boolean> = _isDownloading.asStateFlow()
+
+    // ── 著者選択 ──────────────────────────────────
+
+    val allAuthors: StateFlow<List<Author>> = authorRepository.getAuthors()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    private val _selectedAuthors = MutableStateFlow<List<Author>>(emptyList())
+    val selectedAuthors: StateFlow<List<Author>> = _selectedAuthors.asStateFlow()
+
+    fun toggleAuthor(author: Author) {
+        val current = _selectedAuthors.value
+        _selectedAuthors.value = if (current.any { it.id == author.id }) {
+            current.filter { it.id != author.id }
+        } else {
+            current + author
+        }
+    }
+
+    fun removeAuthor(author: Author) {
+        _selectedAuthors.value = _selectedAuthors.value.filter { it.id != author.id }
+    }
+
+    fun addNewAuthor(name: String) {
+        val trimmed = name.trim()
+        if (trimmed.isEmpty()) return
+        viewModelScope.launch {
+            runCatching {
+                authorRepository.findAuthorByName(trimmed)
+                    ?: Author(
+                        id = authorRepository.addAuthor(Author(name = trimmed)),
+                        name = trimmed,
+                    )
+            }.onSuccess { author ->
+                if (_selectedAuthors.value.none { it.id == author.id }) {
+                    _selectedAuthors.value = _selectedAuthors.value + author
+                }
+            }.onFailure { e ->
+                _lastResult.value = "著者の追加に失敗しました：${e.message}"
+            }
+        }
+    }
+
+    // ── サークル選択 ─────────────────────────────
+
+    val allCircles: StateFlow<List<Circle>> = circleRepository.getCircles()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    private val _selectedCircle = MutableStateFlow<Circle?>(null)
+    val selectedCircle: StateFlow<Circle?> = _selectedCircle.asStateFlow()
+
+    fun setCircle(circle: Circle?) {
+        _selectedCircle.value = circle
+    }
+
+    fun addNewCircle(name: String) {
+        val trimmed = name.trim()
+        if (trimmed.isEmpty()) return
+        viewModelScope.launch {
+            runCatching {
+                circleRepository.findCircleByName(trimmed)
+                    ?: Circle(
+                        id = circleRepository.addCircle(Circle(name = trimmed)),
+                        name = trimmed,
+                    )
+            }.onSuccess { circle ->
+                _selectedCircle.value = circle
+            }.onFailure { e ->
+                _lastResult.value = "サークルの追加に失敗しました：${e.message}"
+            }
+        }
+    }
+
+    // ── カバー画像 ───────────────────────────────
 
     fun saveCoverImageFromPicker(uri: Uri) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -112,20 +183,13 @@ class RegisterTopViewModel(
         }
     }
 
-    /**
-     * 入力内容から本を1冊登録する。
-     *
-     * 本は本棚への外部キーを持つため、デバッグ用本棚を find-or-create してから登録する。
-     * 著者は「、」または「,」区切りで複数指定でき、既存名は再利用する。
-     *
-     * @param detail 商業誌なら出版社、同人誌ならサークル名として保存する。
-     */
+    // ── 登録 ─────────────────────────────────────
+
     fun registerBook(
         title: String,
         subtitle: String,
-        authorNames: String,
         bookType: BookType,
-        detail: String,
+        publisher: String,
     ) {
         val trimmedTitle = title.trim()
         if (trimmedTitle.isEmpty()) {
@@ -135,7 +199,7 @@ class RegisterTopViewModel(
         viewModelScope.launch {
             runCatching {
                 val bookshelfId = ensureDebugBookshelf()
-                val authorIds = resolveAuthors(authorNames)
+                val authorIds = _selectedAuthors.value.map { it.id }
                 val bookId = bookRepository.addBookWithAuthors(
                     book = Book(
                         bookshelfId = bookshelfId,
@@ -150,42 +214,61 @@ class RegisterTopViewModel(
                     BookType.COMMERCIAL -> bookRepository.addCommercialDetail(
                         CommercialBookDetail(
                             bookId = bookId,
-                            publisher = detail.trim().ifEmpty { null },
+                            publisher = publisher.trim().ifEmpty { null },
                         )
                     )
 
-                    BookType.DOUJIN -> {
-                        val circleId = resolveCircle(detail)
-                        bookRepository.addDoujinDetail(
-                            DoujinBookDetail(
-                                bookId = bookId,
-                                circleId = circleId,
-                            )
+                    BookType.DOUJIN -> bookRepository.addDoujinDetail(
+                        DoujinBookDetail(
+                            bookId = bookId,
+                            circleId = _selectedCircle.value?.id,
                         )
-                    }
+                    )
                 }
                 bookId
             }.onSuccess { bookId ->
                 _lastResult.value = "登録しました（bookId=$bookId）：$trimmedTitle"
                 _coverImagePath.value = null
+                _selectedAuthors.value = emptyList()
+                _selectedCircle.value = null
             }.onFailure { e ->
                 _lastResult.value = "登録に失敗しました：${e.message}"
             }
         }
     }
 
-    /** ワンタップでダミー本を登録する。連打して「最近登録した本」の挙動を確認する用途。 */
     fun registerRandomBook() {
         val n = bookCount.value + 1
         val isCommercial = n % 2 == 0
-        registerBook(
-            title = "サンプル本 #$n",
-            subtitle = "",
-            authorNames = "テスト著者$n",
-            bookType = if (isCommercial) BookType.COMMERCIAL else BookType.DOUJIN,
-            detail = if (isCommercial) "サンプル出版社" else "サンプルサークル",
-        )
+        viewModelScope.launch {
+            val authorName = "テスト著者$n"
+            val author = authorRepository.findAuthorByName(authorName)
+                ?: Author(
+                    id = authorRepository.addAuthor(Author(name = authorName)),
+                    name = authorName,
+                )
+            _selectedAuthors.value = listOf(author)
+
+            if (!isCommercial) {
+                val circleName = "サンプルサークル"
+                val circle = circleRepository.findCircleByName(circleName)
+                    ?: Circle(
+                        id = circleRepository.addCircle(Circle(name = circleName)),
+                        name = circleName,
+                    )
+                _selectedCircle.value = circle
+            }
+
+            registerBook(
+                title = "サンプル本 #$n",
+                subtitle = "",
+                bookType = if (isCommercial) BookType.COMMERCIAL else BookType.DOUJIN,
+                publisher = if (isCommercial) "サンプル出版社" else "",
+            )
+        }
     }
+
+    // ── private helpers ──────────────────────────
 
     private fun deletePreviousCoverFile() {
         _coverImagePath.value?.let { File(it).delete() }
@@ -197,10 +280,6 @@ class RegisterTopViewModel(
         return File(dir, "${UUID.randomUUID()}.jpg")
     }
 
-    /**
-     * 本登録に必要な本棚を確保する。
-     * デバッグ用本棚があれば流用、無ければ既存の任意の本棚、それも無ければ新規作成する。
-     */
     private suspend fun ensureDebugBookshelf(): Long {
         val existing = bookshelfRepository.getBookshelves().first()
         val target = existing.firstOrNull { it.name == DEBUG_BOOKSHELF_NAME }
@@ -208,24 +287,6 @@ class RegisterTopViewModel(
         return target?.id
             ?: bookshelfRepository.addBookshelf(Bookshelf(name = DEBUG_BOOKSHELF_NAME))
     }
-
-    /** サークル名を find-or-create して ID に解決する。空文字なら null。 */
-    private suspend fun resolveCircle(raw: String): Long? {
-        val name = raw.trim()
-        if (name.isEmpty()) return null
-        return circleRepository.findCircleByName(name)?.id
-            ?: circleRepository.addCircle(Circle(name = name))
-    }
-
-    /** 区切り文字で分割した著者名を find-or-create して ID リストに解決する。 */
-    private suspend fun resolveAuthors(raw: String): List<Long> =
-        raw.split(",", "、")
-            .map(String::trim)
-            .filter(String::isNotEmpty)
-            .map { name ->
-                authorRepository.findAuthorByName(name)?.id
-                    ?: authorRepository.addAuthor(Author(name = name))
-            }
 
     private companion object {
         const val DEBUG_BOOKSHELF_NAME = "デバッグ本棚"

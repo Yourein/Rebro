@@ -35,6 +35,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import net.yourein.rebro.core.resources.RebroTheme
 import net.yourein.rebro.model.BookType
+import net.yourein.rebro.model.entity.Author
+import net.yourein.rebro.model.entity.Circle
 import org.koin.androidx.compose.koinViewModel
 
 /**
@@ -50,6 +52,10 @@ fun RegisterTopScreen(
     val lastResult by viewModel.lastResult.collectAsStateWithLifecycle()
     val coverImagePath by viewModel.coverImagePath.collectAsStateWithLifecycle()
     val isDownloading by viewModel.isDownloading.collectAsStateWithLifecycle()
+    val selectedAuthors by viewModel.selectedAuthors.collectAsStateWithLifecycle()
+    val allAuthors by viewModel.allAuthors.collectAsStateWithLifecycle()
+    val selectedCircle by viewModel.selectedCircle.collectAsStateWithLifecycle()
+    val allCircles by viewModel.allCircles.collectAsStateWithLifecycle()
 
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
@@ -61,6 +67,10 @@ fun RegisterTopScreen(
         lastResult = lastResult,
         coverImagePath = coverImagePath,
         isDownloading = isDownloading,
+        selectedAuthors = selectedAuthors,
+        allAuthors = allAuthors,
+        selectedCircle = selectedCircle,
+        allCircles = allCircles,
         onRegister = viewModel::registerBook,
         onRegisterRandom = viewModel::registerRandomBook,
         onPickFromGallery = {
@@ -70,6 +80,11 @@ fun RegisterTopScreen(
         },
         onUrlSpecified = viewModel::downloadCoverImage,
         onClearImage = viewModel::clearCoverImage,
+        onToggleAuthor = viewModel::toggleAuthor,
+        onRemoveAuthor = viewModel::removeAuthor,
+        onAddNewAuthor = viewModel::addNewAuthor,
+        onSetCircle = viewModel::setCircle,
+        onAddNewCircle = viewModel::addNewCircle,
     )
 }
 
@@ -78,17 +93,25 @@ internal fun RegisterTopScreen(
     lastResult: String?,
     coverImagePath: String?,
     isDownloading: Boolean,
-    onRegister: (title: String, subtitle: String, authorNames: String, bookType: BookType, detail: String) -> Unit,
+    selectedAuthors: List<Author>,
+    allAuthors: List<Author>,
+    selectedCircle: Circle?,
+    allCircles: List<Circle>,
+    onRegister: (title: String, subtitle: String, bookType: BookType, publisher: String) -> Unit,
     onRegisterRandom: () -> Unit,
     onPickFromGallery: () -> Unit,
     onUrlSpecified: (String) -> Unit,
     onClearImage: () -> Unit,
+    onToggleAuthor: (Author) -> Unit,
+    onRemoveAuthor: (Author) -> Unit,
+    onAddNewAuthor: (String) -> Unit,
+    onSetCircle: (Circle?) -> Unit,
+    onAddNewCircle: (String) -> Unit,
 ) {
     var title by remember { mutableStateOf("") }
     var subtitle by remember { mutableStateOf("") }
-    var authorNames by remember { mutableStateOf("") }
     var bookType by remember { mutableStateOf(BookType.COMMERCIAL) }
-    var detail by remember { mutableStateOf("") }
+    var publisher by remember { mutableStateOf("") }
 
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -144,30 +167,35 @@ internal fun RegisterTopScreen(
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
         )
-        OutlinedTextField(
-            value = authorNames,
-            onValueChange = { authorNames = it },
-            label = { Text("著者（「、」または「,」区切りで複数可）") },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth(),
+
+        AuthorSelectionSection(
+            selectedAuthors = selectedAuthors,
+            allAuthors = allAuthors,
+            onToggleAuthor = onToggleAuthor,
+            onRemoveAuthor = onRemoveAuthor,
+            onAddNewAuthor = onAddNewAuthor,
         )
 
-
-
-        OutlinedTextField(
-            value = detail,
-            onValueChange = { detail = it },
-            label = {
-                Text(
-                    when (bookType) {
-                        BookType.COMMERCIAL -> "出版社"
-                        BookType.DOUJIN -> "サークル名"
-                    }
+        when (bookType) {
+            BookType.COMMERCIAL -> {
+                OutlinedTextField(
+                    value = publisher,
+                    onValueChange = { publisher = it },
+                    label = { Text("出版社") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
                 )
-            },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth(),
-        )
+            }
+
+            BookType.DOUJIN -> {
+                CircleSelectionSection(
+                    selectedCircle = selectedCircle,
+                    allCircles = allCircles,
+                    onSelectCircle = onSetCircle,
+                    onAddNewCircle = onAddNewCircle,
+                )
+            }
+        }
 
         HorizontalDivider()
 
@@ -183,11 +211,10 @@ internal fun RegisterTopScreen(
 
         Button(
             onClick = {
-                onRegister(title, subtitle, authorNames, bookType, detail)
+                onRegister(title, subtitle, bookType, publisher)
                 title = ""
                 subtitle = ""
-                authorNames = ""
-                detail = ""
+                publisher = ""
             },
             modifier = Modifier.fillMaxWidth(),
         ) {
@@ -222,11 +249,25 @@ private fun RegisterTopScreenPreview() {
             lastResult = "登録しました（bookId=3）：サンプル本 #3",
             coverImagePath = null,
             isDownloading = false,
-            onRegister = { _, _, _, _, _ -> },
+            selectedAuthors = listOf(
+                Author(id = 1, name = "テスト著者"),
+            ),
+            allAuthors = listOf(
+                Author(id = 1, name = "テスト著者"),
+                Author(id = 2, name = "別の著者"),
+            ),
+            selectedCircle = null,
+            allCircles = emptyList(),
+            onRegister = { _, _, _, _ -> },
             onRegisterRandom = {},
             onPickFromGallery = {},
             onUrlSpecified = {},
             onClearImage = {},
+            onToggleAuthor = {},
+            onRemoveAuthor = {},
+            onAddNewAuthor = {},
+            onSetCircle = {},
+            onAddNewCircle = {},
         )
     }
 }
