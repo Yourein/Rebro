@@ -17,6 +17,9 @@ object RebroColor {
     /** Rebro Background Color */
     val Background = Color(0xFF1A1A1A)
 
+    /** Rebro Surface Color — Background より少し明るい。BottomNavigation 等の浮き上がった面に使う */
+    val Surface = Color(0xFF2A2A2A)
+
     /** Rebro Text Primary Color */
     val TextPrimary = Color(0xFFF0F0F0)
 
