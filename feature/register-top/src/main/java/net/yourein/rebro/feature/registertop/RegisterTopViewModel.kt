@@ -258,6 +258,12 @@ class RegisterTopViewModel(
     // ── Autofill ─────────────────────────────────
 
     fun applyAutofill(result: AutofillResult) {
+        _selectedAuthors.value = emptyList()
+        _selectedCircle.value = null
+        _selectedSeries.value = emptyList()
+        _selectedBookshelf.value = null
+        clearCoverImage()
+
         result.authorNames.forEach { addNewAuthor(it) }
         result.circleName?.let { addNewCircle(it) }
         result.coverImageUrl?.let { downloadCoverImage(it) }
