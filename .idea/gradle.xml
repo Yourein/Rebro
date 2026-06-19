@@ -27,6 +27,7 @@
             <option value="$PROJECT_DIR$/feature/register-top" />
             <option value="$PROJECT_DIR$/feature/search" />
             <option value="$PROJECT_DIR$/feature/search-top" />
+            <option value="$PROJECT_DIR$/feature/series" />
             <option value="$PROJECT_DIR$/interfaces" />
             <option value="$PROJECT_DIR$/model" />
             <option value="$PROJECT_DIR$/repositories" />

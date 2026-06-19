@@ -50,6 +50,13 @@ class RegisterTopViewModel(
     private val _lastResult = MutableStateFlow<String?>(null)
     val lastResult: StateFlow<String?> = _lastResult.asStateFlow()
 
+    private val _registrationSuccess = MutableStateFlow(false)
+    val registrationSuccess: StateFlow<Boolean> = _registrationSuccess.asStateFlow()
+
+    fun consumeRegistrationSuccess() {
+        _registrationSuccess.value = false
+    }
+
     private val _coverImagePath = MutableStateFlow<String?>(null)
     val coverImagePath: StateFlow<String?> = _coverImagePath.asStateFlow()
 
@@ -312,6 +319,7 @@ class RegisterTopViewModel(
                 _selectedAuthors.value = emptyList()
                 _selectedSeries.value = emptyList()
                 _selectedCircle.value = null
+                _registrationSuccess.value = true
             }.onFailure { e ->
                 _lastResult.value = "登録に失敗しました：${e.message}"
             }

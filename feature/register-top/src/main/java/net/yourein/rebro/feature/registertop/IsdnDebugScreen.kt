@@ -1,10 +1,14 @@
 package net.yourein.rebro.feature.registertop
 
+import android.Manifest
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.only
@@ -18,17 +22,23 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
+import androidx.core.content.PermissionChecker
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import net.yourein.rebro.model.isdn.IsdnItem
 import net.yourein.rebro.model.isdn.IsdnResponse
@@ -45,9 +55,35 @@ fun IsdnDebugScreen(
     val isdnResult by viewModel.isdnResult.collectAsStateWithLifecycle()
     val isbnResult by viewModel.isbnResult.collectAsStateWithLifecycle()
     val error by viewModel.error.collectAsStateWithLifecycle()
+    val barcodeAutofillResult by viewModel.barcodeAutofillResult.collectAsStateWithLifecycle()
+
+    LaunchedEffect(barcodeAutofillResult) {
+        val result = barcodeAutofillResult ?: return@LaunchedEffect
+        viewModel.consumeBarcodeAutofillResult()
+        onApplyAutofill?.invoke(result)
+    }
 
     var codeInput by remember { mutableStateOf("") }
     var mode by remember { mutableStateOf(LookupMode.ISDN) }
+
+    val context = LocalContext.current
+    var hasCameraPermission by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
+                == PermissionChecker.PERMISSION_GRANTED
+        )
+    }
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+    ) { granted ->
+        hasCameraPermission = granted
+    }
+
+    LaunchedEffect(Unit) {
+        if (!hasCameraPermission) {
+            permissionLauncher.launch(Manifest.permission.CAMERA)
+        }
+    }
 
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -59,11 +95,51 @@ fun IsdnDebugScreen(
             .padding(16.dp),
     ) {
         Text(
-            text = "Barcode Debug",
+            text = "Barcode Lookup",
             fontWeight = FontWeight.Bold,
             fontSize = 24.sp,
         )
 
+        // ── バーコードスキャナー ─────────────────
+        if (hasCameraPermission) {
+            BarcodeScannerView(
+                onBarcodeDetected = { barcode ->
+                    if (!isLoading) {
+                        codeInput = barcode
+                        when {
+                            barcode.startsWith("278") -> mode = LookupMode.ISDN
+                            barcode.startsWith("978") -> mode = LookupMode.ISBN
+                        }
+                        viewModel.fetchByBarcode(barcode)
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(4f / 3f)
+                    .clip(MaterialTheme.shapes.medium),
+            )
+        } else {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(
+                    text = "カメラの権限がないため、バーコードスキャナーを起動できません",
+                    color = MaterialTheme.colorScheme.error,
+                    fontSize = 14.sp,
+                )
+                OutlinedButton(
+                    onClick = { permissionLauncher.launch(Manifest.permission.CAMERA) },
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text("カメラの権限を許可する")
+                }
+            }
+        }
+
+        HorizontalDivider()
+
+        // ── 手動入力 ─────────────────────────────
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             FilterChip(
                 selected = mode == LookupMode.ISDN,

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import net.yourein.rebro.interfaces.IsdnRepository
 import net.yourein.rebro.interfaces.NdlRepository
@@ -29,6 +30,16 @@ class IsdnDebugViewModel(
 
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
+
+    private val _barcodeAutofillResult = MutableStateFlow<AutofillResult?>(null)
+    val barcodeAutofillResult: StateFlow<AutofillResult?> = _barcodeAutofillResult.asStateFlow()
+
+    private var autoApplyOnComplete = false
+    private var lastFetchedBarcode: String? = null
+
+    fun consumeBarcodeAutofillResult() {
+        _barcodeAutofillResult.value = null
+    }
 
     fun buildAutofillResult(): AutofillResult? {
         _isdnResult.value?.let { response ->
@@ -63,6 +74,18 @@ class IsdnDebugViewModel(
         return null
     }
 
+    fun fetchByBarcode(barcode: String) {
+        if (barcode == lastFetchedBarcode) return
+        val mode = when {
+            barcode.startsWith("278") -> LookupMode.ISDN
+            barcode.startsWith("978") -> LookupMode.ISBN
+            else -> return
+        }
+        lastFetchedBarcode = barcode
+        autoApplyOnComplete = true
+        fetch(barcode, mode)
+    }
+
     fun fetch(code: String, mode: LookupMode) {
         viewModelScope.launch {
             _isLoading.value = true
@@ -92,6 +115,10 @@ class IsdnDebugViewModel(
                 _error.value = e.message ?: "不明なエラー"
             } finally {
                 _isLoading.value = false
+                if (autoApplyOnComplete) {
+                    autoApplyOnComplete = false
+                    _barcodeAutofillResult.value = buildAutofillResult()
+                }
             }
         }
     }

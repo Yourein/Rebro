@@ -50,6 +50,7 @@ fun RegisterTopScreen(
     viewModel: RegisterTopViewModel = koinViewModel(),
 ) {
     val lastResult by viewModel.lastResult.collectAsStateWithLifecycle()
+    val registrationSuccess by viewModel.registrationSuccess.collectAsStateWithLifecycle()
     val coverImagePath by viewModel.coverImagePath.collectAsStateWithLifecycle()
     val isDownloading by viewModel.isDownloading.collectAsStateWithLifecycle()
     val selectedBookshelf by viewModel.selectedBookshelf.collectAsStateWithLifecycle()
@@ -70,6 +71,7 @@ fun RegisterTopScreen(
     RegisterTopScreen(
         navigateToIsdnDebug = navigateToIsdnDebug,
         lastResult = lastResult,
+        registrationSuccess = registrationSuccess,
         coverImagePath = coverImagePath,
         isDownloading = isDownloading,
         pendingAutofill = pendingAutofill,
@@ -82,6 +84,7 @@ fun RegisterTopScreen(
         selectedSeries = selectedSeries,
         allSeries = allSeries,
         onRegister = viewModel::registerBook,
+        onConsumeRegistrationSuccess = viewModel::consumeRegistrationSuccess,
         onConsumeAutofill = { result ->
             viewModel.applyAutofill(result)
             onAutofillConsumed()
@@ -110,6 +113,7 @@ fun RegisterTopScreen(
 internal fun RegisterTopScreen(
     navigateToIsdnDebug: () -> Unit,
     lastResult: String?,
+    registrationSuccess: Boolean,
     coverImagePath: String?,
     isDownloading: Boolean,
     pendingAutofill: AutofillResult?,
@@ -122,6 +126,7 @@ internal fun RegisterTopScreen(
     selectedSeries: List<Series>,
     allSeries: List<Series>,
     onRegister: (title: String, subtitle: String, bookType: BookType, publisher: String) -> Unit,
+    onConsumeRegistrationSuccess: () -> Unit,
     onConsumeAutofill: (AutofillResult) -> Unit,
     onPickFromGallery: () -> Unit,
     onUrlSpecified: (String) -> Unit,
@@ -148,6 +153,15 @@ internal fun RegisterTopScreen(
             bookType = pendingAutofill.bookType
             publisher = pendingAutofill.publisher
             onConsumeAutofill(pendingAutofill)
+        }
+    }
+
+    LaunchedEffect(registrationSuccess) {
+        if (registrationSuccess) {
+            title = ""
+            subtitle = ""
+            publisher = ""
+            onConsumeRegistrationSuccess()
         }
     }
 
@@ -263,12 +277,7 @@ internal fun RegisterTopScreen(
         HorizontalDivider()
 
         Button(
-            onClick = {
-                onRegister(title, subtitle, bookType, publisher)
-                title = ""
-                subtitle = ""
-                publisher = ""
-            },
+            onClick = { onRegister(title, subtitle, bookType, publisher) },
             modifier = Modifier.fillMaxWidth(),
         ) {
             Text("Register")
@@ -294,6 +303,7 @@ private fun RegisterTopScreenPreview() {
         RegisterTopScreen(
             navigateToIsdnDebug = {},
             lastResult = "登録しました（bookId=3）：サンプル本 #3",
+            registrationSuccess = false,
             coverImagePath = null,
             isDownloading = false,
             pendingAutofill = null,
@@ -313,6 +323,7 @@ private fun RegisterTopScreenPreview() {
             selectedSeries = emptyList(),
             allSeries = emptyList(),
             onRegister = { _, _, _, _ -> },
+            onConsumeRegistrationSuccess = {},
             onConsumeAutofill = {},
             onPickFromGallery = {},
             onUrlSpecified = {},
