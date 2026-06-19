@@ -13,6 +13,7 @@ import net.yourein.rebro.interfaces.BookRepository
 import net.yourein.rebro.interfaces.BookshelfRepository
 import net.yourein.rebro.interfaces.CircleRepository
 import net.yourein.rebro.interfaces.IsdnRepository
+import net.yourein.rebro.interfaces.NdlRepository
 import net.yourein.rebro.repositories.AppDatabase
 import net.yourein.rebro.repositories.AuthorRepositoryImpl
 import net.yourein.rebro.repositories.BookRepositoryImpl
@@ -20,6 +21,8 @@ import net.yourein.rebro.repositories.BookshelfRepositoryImpl
 import net.yourein.rebro.repositories.CircleRepositoryImpl
 import net.yourein.rebro.repositories.IsdnApiService
 import net.yourein.rebro.repositories.IsdnRepositoryImpl
+import net.yourein.rebro.repositories.NdlApiService
+import net.yourein.rebro.repositories.NdlRepositoryImpl
 import net.yourein.rebro.usecase.BooksUseCase
 import net.yourein.rebro.usecase.BookshelfUseCase
 import nl.adaptivity.xmlutil.serialization.DefaultXmlSerializationPolicy
@@ -33,6 +36,7 @@ import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
 import retrofit2.Retrofit
+import java.util.concurrent.TimeUnit
 
 abstract class BaseApplication : Application() {
 
@@ -65,18 +69,31 @@ abstract class BaseApplication : Application() {
 
     private val networkKoinModule = module {
         single {
-            val okHttpClient = OkHttpClient.Builder()
+            OkHttpClient.Builder()
                 .addInterceptor(
                     HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
                 )
                 .build()
-
+        }
+        single {
             Retrofit.Builder()
                 .baseUrl("https://isdn.jp/")
-                .client(okHttpClient)
+                .client(get<OkHttpClient>())
                 .build()
+                .create(IsdnApiService::class.java)
         }
-        single { get<Retrofit>().create(IsdnApiService::class.java) }
+        single {
+            val ndlClient = get<OkHttpClient>().newBuilder()
+                .connectTimeout(60, TimeUnit.SECONDS)
+                .readTimeout(60, TimeUnit.SECONDS)
+                .writeTimeout(60, TimeUnit.SECONDS)
+                .build()
+            Retrofit.Builder()
+                .baseUrl("https://ndlsearch.ndl.go.jp/")
+                .client(ndlClient)
+                .build()
+                .create(NdlApiService::class.java)
+        }
         single {
             XML {
                 recommended()
@@ -113,6 +130,7 @@ abstract class BaseApplication : Application() {
         factory<AuthorRepository> { AuthorRepositoryImpl(get()) }
         factory<CircleRepository> { CircleRepositoryImpl(get()) }
         factory<IsdnRepository> { IsdnRepositoryImpl(get(), get()) }
+        factory<NdlRepository> { NdlRepositoryImpl(get(), get()) }
     }
 
     private val useCaseKoinModule = module {
@@ -126,6 +144,6 @@ abstract class BaseApplication : Application() {
         factory<BookDetailViewModel> { (bookId: Long) -> BookDetailViewModel(bookId, get(), get()) }
         factory<CirclesViewModel> { CirclesViewModel(get()) }
         factory<RegisterTopViewModel> { RegisterTopViewModel(androidApplication(), get(), get(), get(), get()) }
-        factory<IsdnDebugViewModel> { IsdnDebugViewModel(get()) }
+        factory<IsdnDebugViewModel> { IsdnDebugViewModel(get(), get()) }
     }
 }

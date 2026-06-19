@@ -6,32 +6,53 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import net.yourein.rebro.interfaces.IsdnRepository
+import net.yourein.rebro.interfaces.NdlRepository
 import net.yourein.rebro.model.isdn.IsdnResponse
+import net.yourein.rebro.model.ndl.SruResponse
+
+enum class LookupMode { ISDN, ISBN }
 
 class IsdnDebugViewModel(
     private val isdnRepository: IsdnRepository,
+    private val ndlRepository: NdlRepository,
 ) : ViewModel() {
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
-    private val _result = MutableStateFlow<IsdnResponse?>(null)
-    val result: StateFlow<IsdnResponse?> = _result
+    private val _isdnResult = MutableStateFlow<IsdnResponse?>(null)
+    val isdnResult: StateFlow<IsdnResponse?> = _isdnResult
+
+    private val _isbnResult = MutableStateFlow<SruResponse?>(null)
+    val isbnResult: StateFlow<SruResponse?> = _isbnResult
 
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
 
-    fun fetch(isdn: String) {
+    fun fetch(code: String, mode: LookupMode) {
         viewModelScope.launch {
             _isLoading.value = true
             _error.value = null
-            _result.value = null
+            _isdnResult.value = null
+            _isbnResult.value = null
             try {
-                val response = isdnRepository.getBookInfo(isdn)
-                if (response != null) {
-                    _result.value = response
-                } else {
-                    _error.value = "レスポンスの取得に失敗しました"
+                when (mode) {
+                    LookupMode.ISDN -> {
+                        val response = isdnRepository.getBookInfo(code)
+                        if (response != null) {
+                            _isdnResult.value = response
+                        } else {
+                            _error.value = "レスポンスの取得に失敗しました"
+                        }
+                    }
+                    LookupMode.ISBN -> {
+                        val response = ndlRepository.searchByIsbn(code)
+                        if (response != null) {
+                            _isbnResult.value = response
+                        } else {
+                            _error.value = "レスポンスの取得に失敗しました"
+                        }
+                    }
                 }
             } catch (e: Exception) {
                 _error.value = e.message ?: "不明なエラー"
