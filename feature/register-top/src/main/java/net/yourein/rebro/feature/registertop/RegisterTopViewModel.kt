@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 import net.yourein.rebro.interfaces.AuthorRepository
 import net.yourein.rebro.interfaces.BookRepository
 import net.yourein.rebro.interfaces.BookshelfRepository
@@ -28,6 +29,7 @@ import java.io.File
 import java.net.URL
 import java.util.UUID
 
+@Serializable
 data class AutofillResult(
     val title: String,
     val bookType: BookType,

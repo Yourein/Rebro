@@ -162,7 +162,12 @@ fun RebroNavDisplay(
                     )
                 }
                 entry<QrScan> {
-                    QrScanScreen()
+                    QrScanScreen(
+                        onApplyAutofill = { result ->
+                            pendingAutofill = result
+                            backStack.removeLastOrNull()
+                        },
+                    )
                 }
                 entry<Bookshelfs> { PlaceholderScreen("Bookshelfs") }
                 entry<Authors> { PlaceholderScreen("Authors") }

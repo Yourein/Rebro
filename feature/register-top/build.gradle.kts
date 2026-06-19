@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -43,6 +44,7 @@ dependencies {
     implementation(libs.androidx.camera.lifecycle)
     implementation(libs.androidx.camera.view)
     implementation(libs.mlkit.barcode.scanning)
+    implementation(libs.kotlinx.serialization.json)
 
     implementation(platform(libs.koin.bom))
     implementation(libs.koin.android)

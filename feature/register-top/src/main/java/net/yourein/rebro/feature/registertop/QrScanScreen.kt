@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -34,9 +35,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
+import kotlinx.serialization.json.Json
+
+private val lenientJson = Json { ignoreUnknownKeys = true }
+
+private fun tryParseAutofillResult(bytes: ByteArray): AutofillResult? =
+    runCatching {
+        val jsonString = bytes.toString(Charsets.UTF_8)
+        lenientJson.decodeFromString<AutofillResult>(jsonString)
+    }.getOrNull()
 
 @Composable
-fun QrScanScreen() {
+fun QrScanScreen(
+    onApplyAutofill: (AutofillResult) -> Unit = {},
+) {
     val context = LocalContext.current
     var hasCameraPermission by remember {
         mutableStateOf(
@@ -56,8 +68,9 @@ fun QrScanScreen() {
         }
     }
 
+    var parsedResult by remember { mutableStateOf<AutofillResult?>(null) }
     var lastScannedBytes by remember { mutableStateOf<ByteArray?>(null) }
-    var lastScannedHex by remember { mutableStateOf<String?>(null) }
+    var parseError by remember { mutableStateOf(false) }
 
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -79,7 +92,9 @@ fun QrScanScreen() {
                 onQrCodeDetected = { bytes ->
                     if (!bytes.contentEquals(lastScannedBytes)) {
                         lastScannedBytes = bytes
-                        lastScannedHex = bytes.joinToString(" ") { "%02X".format(it) }
+                        val result = tryParseAutofillResult(bytes)
+                        parsedResult = result
+                        parseError = result == null
                     }
                 },
                 modifier = Modifier
@@ -106,17 +121,35 @@ fun QrScanScreen() {
             }
         }
 
-        lastScannedHex?.let { hex ->
+        parsedResult?.let { result ->
             HorizontalDivider()
             Text(
-                text = "Scanned Data (${lastScannedBytes?.size ?: 0} bytes)",
+                text = "Rebro QR を検出しました",
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 14.sp,
             )
+            Text(text = "タイトル: ${result.title}", fontSize = 13.sp)
+            if (!result.circleName.isNullOrEmpty()) {
+                Text(text = "サークル: ${result.circleName}", fontSize = 13.sp)
+            }
+            if (result.authorNames.isNotEmpty()) {
+                Text(text = "著者: ${result.authorNames.joinToString()}", fontSize = 13.sp)
+            }
+
+            Button(
+                onClick = { onApplyAutofill(result) },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("この内容で入力する")
+            }
+        }
+
+        if (parseError && parsedResult == null) {
+            HorizontalDivider()
             Text(
-                text = hex,
+                text = "Rebro QR として認識できないQRコードです",
+                color = MaterialTheme.colorScheme.error,
                 fontSize = 13.sp,
-                lineHeight = 18.sp,
             )
         }
     }
