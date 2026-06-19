@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -68,7 +67,6 @@ fun QrScanScreen(
         }
     }
 
-    var parsedResult by remember { mutableStateOf<AutofillResult?>(null) }
     var lastScannedBytes by remember { mutableStateOf<ByteArray?>(null) }
     var parseError by remember { mutableStateOf(false) }
 
@@ -93,8 +91,11 @@ fun QrScanScreen(
                     if (!bytes.contentEquals(lastScannedBytes)) {
                         lastScannedBytes = bytes
                         val result = tryParseAutofillResult(bytes)
-                        parsedResult = result
-                        parseError = result == null
+                        if (result != null) {
+                            onApplyAutofill(result)
+                        } else {
+                            parseError = true
+                        }
                     }
                 },
                 modifier = Modifier
@@ -121,30 +122,7 @@ fun QrScanScreen(
             }
         }
 
-        parsedResult?.let { result ->
-            HorizontalDivider()
-            Text(
-                text = "Rebro QR を検出しました",
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 14.sp,
-            )
-            Text(text = "タイトル: ${result.title}", fontSize = 13.sp)
-            if (!result.circleName.isNullOrEmpty()) {
-                Text(text = "サークル: ${result.circleName}", fontSize = 13.sp)
-            }
-            if (result.authorNames.isNotEmpty()) {
-                Text(text = "著者: ${result.authorNames.joinToString()}", fontSize = 13.sp)
-            }
-
-            Button(
-                onClick = { onApplyAutofill(result) },
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text("この内容で入力する")
-            }
-        }
-
-        if (parseError && parsedResult == null) {
+        if (parseError) {
             HorizontalDivider()
             Text(
                 text = "Rebro QR として認識できないQRコードです",
