@@ -111,8 +111,10 @@ fun RegisterTopScreen(
         onToggleAuthor = viewModel::toggleAuthor,
         onRemoveAuthor = viewModel::removeAuthor,
         onAddNewAuthor = viewModel::addNewAuthor,
+        onRenameAuthor = viewModel::renameAuthor,
         onSetCircle = viewModel::setCircle,
         onAddNewCircle = viewModel::addNewCircle,
+        onRenameCircle = viewModel::renameCircle,
         onToggleSeries = viewModel::toggleSeries,
         onRemoveSeries = viewModel::removeSeries,
         onAddNewSeries = viewModel::addNewSeries,
@@ -151,8 +153,10 @@ internal fun RegisterTopScreen(
     onToggleAuthor: (Author) -> Unit,
     onRemoveAuthor: (Author) -> Unit,
     onAddNewAuthor: (String) -> Unit,
+    onRenameAuthor: (Long, String) -> Unit,
     onSetCircle: (Circle?) -> Unit,
     onAddNewCircle: (String) -> Unit,
+    onRenameCircle: (Long, String) -> Unit,
     onToggleSeries: (Series) -> Unit,
     onRemoveSeries: (Series) -> Unit,
     onAddNewSeries: (String) -> Unit,
@@ -219,6 +223,7 @@ internal fun RegisterTopScreen(
             onToggleAuthor = onToggleAuthor,
             onRemoveAuthor = onRemoveAuthor,
             onAddNewAuthor = onAddNewAuthor,
+            onRenameAuthor = onRenameAuthor,
         )
 
         SeriesSelectionSection(
@@ -246,6 +251,7 @@ internal fun RegisterTopScreen(
                     allCircles = allCircles,
                     onSelectCircle = onSetCircle,
                     onAddNewCircle = onAddNewCircle,
+                    onRenameCircle = onRenameCircle,
                 )
             }
         }
@@ -331,8 +337,10 @@ private fun RegisterTopScreenPreview() {
             onToggleAuthor = {},
             onRemoveAuthor = {},
             onAddNewAuthor = {},
+            onRenameAuthor = { _, _ -> },
             onSetCircle = {},
             onAddNewCircle = {},
+            onRenameCircle = { _, _ -> },
             onToggleSeries = {},
             onRemoveSeries = {},
             onAddNewSeries = {},

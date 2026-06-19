@@ -15,11 +15,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.InputChip
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -50,6 +53,7 @@ internal fun AuthorSelectionSection(
     onToggleAuthor: (Author) -> Unit,
     onRemoveAuthor: (Author) -> Unit,
     onAddNewAuthor: (String) -> Unit,
+    onRenameAuthor: (Long, String) -> Unit,
 ) {
     var showDialog by remember { mutableStateOf(false) }
 
@@ -68,13 +72,15 @@ internal fun AuthorSelectionSection(
             selectedAuthors.forEach { author ->
                 InputChip(
                     selected = true,
-                    onClick = { onRemoveAuthor(author) },
+                    onClick = {},
                     label = { Text(author.name) },
                     trailingIcon = {
                         Icon(
                             Icons.Default.Close,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp),
+                            contentDescription = "Remove",
+                            modifier = Modifier
+                                .size(16.dp)
+                                .clickable { onRemoveAuthor(author) },
                         )
                     },
                 )
@@ -100,6 +106,7 @@ internal fun AuthorSelectionSection(
                 allAuthors.find { it.id == id }?.let { onToggleAuthor(it) }
             },
             onNewItemAdded = onAddNewAuthor,
+            onItemRenamed = onRenameAuthor,
             onDismiss = { showDialog = false },
         )
     }
@@ -126,13 +133,15 @@ internal fun BookshelfSelectionSection(
         if (selectedBookshelf != null) {
             InputChip(
                 selected = true,
-                onClick = { onSelectBookshelf(null) },
+                onClick = {},
                 label = { Text(selectedBookshelf.name) },
                 trailingIcon = {
                     Icon(
                         Icons.Default.Close,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp),
+                        contentDescription = "Remove",
+                        modifier = Modifier
+                            .size(16.dp)
+                            .clickable { onSelectBookshelf(null) },
                     )
                 },
             )
@@ -171,6 +180,7 @@ internal fun CircleSelectionSection(
     allCircles: List<Circle>,
     onSelectCircle: (Circle?) -> Unit,
     onAddNewCircle: (String) -> Unit,
+    onRenameCircle: (Long, String) -> Unit,
 ) {
     var showDialog by remember { mutableStateOf(false) }
 
@@ -184,13 +194,15 @@ internal fun CircleSelectionSection(
         if (selectedCircle != null) {
             InputChip(
                 selected = true,
-                onClick = { onSelectCircle(null) },
+                onClick = {},
                 label = { Text(selectedCircle.name) },
                 trailingIcon = {
                     Icon(
                         Icons.Default.Close,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp),
+                        contentDescription = "Remove",
+                        modifier = Modifier
+                            .size(16.dp)
+                            .clickable { onSelectCircle(null) },
                     )
                 },
             )
@@ -216,6 +228,7 @@ internal fun CircleSelectionSection(
                 onSelectCircle(if (selectedCircle?.id == id) null else circle)
             },
             onNewItemAdded = onAddNewCircle,
+            onItemRenamed = onRenameCircle,
             onDismiss = { showDialog = false },
         )
     }
@@ -248,13 +261,15 @@ internal fun SeriesSelectionSection(
             selectedSeries.forEach { series ->
                 InputChip(
                     selected = true,
-                    onClick = { onRemoveSeries(series) },
+                    onClick = {},
                     label = { Text(series.name) },
                     trailingIcon = {
                         Icon(
                             Icons.Default.Close,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp),
+                            contentDescription = "Remove",
+                            modifier = Modifier
+                                .size(16.dp)
+                                .clickable { onRemoveSeries(series) },
                         )
                     },
                 )
@@ -296,10 +311,13 @@ private fun SelectionDialog(
     addNewLabel: String,
     onItemToggled: (Long) -> Unit,
     onNewItemAdded: (String) -> Unit,
+    onItemRenamed: ((Long, String) -> Unit)? = null,
     onDismiss: () -> Unit,
 ) {
     var searchQuery by remember { mutableStateOf("") }
     var newItemName by remember { mutableStateOf("") }
+    var editingId by remember { mutableStateOf<Long?>(null) }
+    var editingName by remember { mutableStateOf("") }
 
     val filteredItems = remember(items, searchQuery) {
         if (searchQuery.isBlank()) items
@@ -333,11 +351,15 @@ private fun SelectionDialog(
                     }
                     items(filteredItems, key = { it.first }) { (id, name) ->
                         val isSelected = id in selectedIds
+                        val isEditing = editingId == id
+
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { onItemToggled(id) }
+                                .clickable {
+                                    if (!isEditing) onItemToggled(id)
+                                }
                                 .padding(vertical = 4.dp),
                         ) {
                             if (multiSelect) {
@@ -346,7 +368,56 @@ private fun SelectionDialog(
                                 RadioButton(selected = isSelected, onClick = null)
                             }
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text(name)
+
+                            if (isEditing) {
+                                OutlinedTextField(
+                                    value = editingName,
+                                    onValueChange = { editingName = it },
+                                    singleLine = true,
+                                    modifier = Modifier.weight(1f),
+                                )
+                                IconButton(
+                                    onClick = {
+                                        val trimmed = editingName.trim()
+                                        if (trimmed.isNotBlank() && trimmed != name) {
+                                            onItemRenamed?.invoke(id, trimmed)
+                                        }
+                                        editingId = null
+                                    },
+                                ) {
+                                    Icon(
+                                        Icons.Default.Check,
+                                        contentDescription = "Confirm",
+                                        modifier = Modifier.size(20.dp),
+                                    )
+                                }
+                                IconButton(
+                                    onClick = { editingId = null },
+                                ) {
+                                    Icon(
+                                        Icons.Default.Close,
+                                        contentDescription = "Cancel",
+                                        modifier = Modifier.size(20.dp),
+                                    )
+                                }
+                            } else {
+                                Text(name, modifier = Modifier.weight(1f))
+                                if (onItemRenamed != null) {
+                                    IconButton(
+                                        onClick = {
+                                            editingId = id
+                                            editingName = name
+                                        },
+                                        modifier = Modifier.size(32.dp),
+                                    ) {
+                                        Icon(
+                                            Icons.Default.Edit,
+                                            contentDescription = "Edit",
+                                            modifier = Modifier.size(18.dp),
+                                        )
+                                    }
+                                }
+                            }
                         }
                     }
                 }

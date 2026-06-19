@@ -148,6 +148,24 @@ class RegisterTopViewModel(
         }
     }
 
+    fun renameAuthor(authorId: Long, newName: String) {
+        val trimmed = newName.trim()
+        if (trimmed.isEmpty()) return
+        viewModelScope.launch {
+            runCatching {
+                val renamed = Author(id = authorId, name = trimmed)
+                authorRepository.updateAuthor(renamed)
+                renamed
+            }.onSuccess { renamed ->
+                _selectedAuthors.value = _selectedAuthors.value.map {
+                    if (it.id == renamed.id) renamed else it
+                }
+            }.onFailure { e ->
+                _lastResult.value = "著者名の変更に失敗しました：${e.message}"
+            }
+        }
+    }
+
     // ── サークル選択 ─────────────────────────────
 
     val allCircles: StateFlow<List<Circle>> = circleRepository.getCircles()
@@ -174,6 +192,24 @@ class RegisterTopViewModel(
                 _selectedCircle.value = circle
             }.onFailure { e ->
                 _lastResult.value = "サークルの追加に失敗しました：${e.message}"
+            }
+        }
+    }
+
+    fun renameCircle(circleId: Long, newName: String) {
+        val trimmed = newName.trim()
+        if (trimmed.isEmpty()) return
+        viewModelScope.launch {
+            runCatching {
+                val renamed = Circle(id = circleId, name = trimmed)
+                circleRepository.updateCircle(renamed)
+                renamed
+            }.onSuccess { renamed ->
+                if (_selectedCircle.value?.id == renamed.id) {
+                    _selectedCircle.value = renamed
+                }
+            }.onFailure { e ->
+                _lastResult.value = "サークル名の変更に失敗しました：${e.message}"
             }
         }
     }
