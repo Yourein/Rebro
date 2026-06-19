@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.yourein.rebro.interfaces.AuthorRepository
@@ -27,14 +26,7 @@ import java.io.File
 import java.net.URL
 import java.util.UUID
 
-/**
- * 【デバッグ用】登録トップ画面の ViewModel。
- *
- * 検索トップの「最近登録した本（15件）」表示を動作確認するために、
- * 任意の本を手早く DB へ登録できるようにする臨時実装。
- * register-top 画面が本来の仕様で作り直される際に丸ごと差し替える前提のため、
- * 専用 UseCase は設けず Repository を直接叩いている。
- */
+/** 書籍登録画面の ViewModel。 */
 class RegisterTopViewModel(
     private val application: Application,
     private val bookRepository: BookRepository,
@@ -42,15 +34,6 @@ class RegisterTopViewModel(
     private val bookshelfRepository: BookshelfRepository,
     private val circleRepository: CircleRepository,
 ) : ViewModel() {
-
-    /** 現在 DB に登録されている本の総数（デバッグ表示用）。 */
-    private val bookCount: StateFlow<Int> = bookRepository.getAllBooks()
-        .map { it.size }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = 0,
-        )
 
     private val _lastResult = MutableStateFlow<String?>(null)
     val lastResult: StateFlow<String?> = _lastResult.asStateFlow()
@@ -268,45 +251,6 @@ class RegisterTopViewModel(
             }.onFailure { e ->
                 _lastResult.value = "登録に失敗しました：${e.message}"
             }
-        }
-    }
-
-    fun registerRandomBook() {
-        val n = bookCount.value + 1
-        val isCommercial = n % 2 == 0
-        viewModelScope.launch {
-            val bookshelfName = "デバッグ本棚"
-            val bookshelf = bookshelfRepository.findBookshelfByName(bookshelfName)
-                ?: Bookshelf(
-                    id = bookshelfRepository.addBookshelf(Bookshelf(name = bookshelfName)),
-                    name = bookshelfName,
-                )
-            _selectedBookshelf.value = bookshelf
-
-            val authorName = "テスト著者$n"
-            val author = authorRepository.findAuthorByName(authorName)
-                ?: Author(
-                    id = authorRepository.addAuthor(Author(name = authorName)),
-                    name = authorName,
-                )
-            _selectedAuthors.value = listOf(author)
-
-            if (!isCommercial) {
-                val circleName = "サンプルサークル"
-                val circle = circleRepository.findCircleByName(circleName)
-                    ?: Circle(
-                        id = circleRepository.addCircle(Circle(name = circleName)),
-                        name = circleName,
-                    )
-                _selectedCircle.value = circle
-            }
-
-            registerBook(
-                title = "サンプル本 #$n",
-                subtitle = "",
-                bookType = if (isCommercial) BookType.COMMERCIAL else BookType.DOUJIN,
-                publisher = if (isCommercial) "サンプル出版社" else "",
-            )
         }
     }
 

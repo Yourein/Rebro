@@ -86,7 +86,6 @@ abstract class BaseApplication : Application() {
         factory<SearchTopViewModel> { SearchTopViewModel(get()) }
         factory<SearchViewModel> { SearchViewModel(get()) }
         factory<BookDetailViewModel> { (bookId: Long) -> BookDetailViewModel(bookId, get(), get()) }
-        // 【デバッグ用】register-top 本実装までの臨時 ViewModel
         factory<RegisterTopViewModel> { RegisterTopViewModel(androidApplication(), get(), get(), get(), get()) }
     }
 }

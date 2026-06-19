@@ -19,7 +19,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,12 +39,7 @@ import net.yourein.rebro.model.entity.Bookshelf
 import net.yourein.rebro.model.entity.Circle
 import org.koin.androidx.compose.koinViewModel
 
-/**
- * 【デバッグ用】登録トップ画面。
- *
- * 検索トップの「最近登録した本」を確認するために、本を手早く DB へ登録するための臨時 UI。
- * register-top 本来の画面が実装され次第、丸ごと差し替える前提で作っている。
- */
+/** 書籍登録画面。 */
 @Composable
 fun RegisterTopScreen(
     viewModel: RegisterTopViewModel = koinViewModel(),
@@ -77,7 +71,6 @@ fun RegisterTopScreen(
         selectedCircle = selectedCircle,
         allCircles = allCircles,
         onRegister = viewModel::registerBook,
-        onRegisterRandom = viewModel::registerRandomBook,
         onPickFromGallery = {
             photoPickerLauncher.launch(
                 PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
@@ -107,7 +100,6 @@ internal fun RegisterTopScreen(
     selectedCircle: Circle?,
     allCircles: List<Circle>,
     onRegister: (title: String, subtitle: String, bookType: BookType, publisher: String) -> Unit,
-    onRegisterRandom: () -> Unit,
     onPickFromGallery: () -> Unit,
     onUrlSpecified: (String) -> Unit,
     onClearImage: () -> Unit,
@@ -239,13 +231,6 @@ internal fun RegisterTopScreen(
             Text("この内容で登録")
         }
 
-        OutlinedButton(
-            onClick = onRegisterRandom,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Text("ランダムなダミー本を登録")
-        }
-
         lastResult?.let {
             HorizontalDivider()
             Text(text = it, fontSize = 14.sp)
@@ -281,7 +266,6 @@ private fun RegisterTopScreenPreview() {
             selectedCircle = null,
             allCircles = emptyList(),
             onRegister = { _, _, _, _ -> },
-            onRegisterRandom = {},
             onPickFromGallery = {},
             onUrlSpecified = {},
             onClearImage = {},
