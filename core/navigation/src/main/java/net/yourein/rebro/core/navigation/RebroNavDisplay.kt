@@ -55,7 +55,10 @@ import net.yourein.rebro.core.navigation.destinations.Search
 import net.yourein.rebro.core.navigation.destinations.SearchTop
 import net.yourein.rebro.core.resources.DrawableR
 import net.yourein.rebro.core.resources.RebroColor
+import net.yourein.rebro.feature.authors.AuthorsScreen
 import net.yourein.rebro.feature.bookdetail.BookDetailScreen
+import net.yourein.rebro.feature.books.BooksScreen
+import net.yourein.rebro.feature.bookshelfs.BookshelvesScreen
 import net.yourein.rebro.feature.circles.CirclesScreen
 import net.yourein.rebro.feature.registertop.AutofillResult
 import net.yourein.rebro.feature.registertop.IsdnDebugScreen
@@ -182,9 +185,22 @@ fun RebroNavDisplay(
                     )
                 }
                 entry<AuthorDetail> { key -> PlaceholderScreen("AuthorDetail(authorName=${key.authorName})") }
-                entry<AllBooks> { PlaceholderScreen("AllBooks") }
-                entry<AllBookshelves> { PlaceholderScreen("AllBookshelves") }
-                entry<AllAuthors> { PlaceholderScreen("AllAuthors") }
+                entry<AllBooks> {
+                    BooksScreen(
+                        navigateBack = { backStack.removeLastOrNull() },
+                        navigateToBookDetail = { bookId -> backStack.add(BookDetail(bookId)) },
+                    )
+                }
+                entry<AllBookshelves> {
+                    BookshelvesScreen(
+                        navigateBack = { backStack.removeLastOrNull() },
+                    )
+                }
+                entry<AllAuthors> {
+                    AuthorsScreen(
+                        navigateBack = { backStack.removeLastOrNull() },
+                    )
+                }
                 entry<AllCircles> {
                     CirclesScreen(
                         navigateBack = { backStack.removeLastOrNull() },

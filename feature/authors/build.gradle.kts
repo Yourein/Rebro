@@ -21,6 +21,8 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:resources"))
+    implementation(project(":core:compose"))
     implementation(project(":model"))
     implementation(project(":interfaces"))
 
@@ -31,5 +33,9 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.kotlinx.coroutines.core)
+
+    implementation(platform(libs.koin.bom))
+    implementation(libs.koin.android)
+    implementation(libs.koin.androidx.compose)
     debugImplementation(libs.androidx.compose.ui.tooling)
 }

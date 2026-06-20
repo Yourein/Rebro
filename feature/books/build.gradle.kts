@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "net.yourein.rebro.feature.bookshelfs"
+    namespace = "net.yourein.rebro.feature.books"
     compileSdk = 36
 
     defaultConfig {

@@ -2,7 +2,10 @@ package net.yourein.rebro.core.application
 
 import android.app.Application
 import androidx.room.Room
+import net.yourein.rebro.feature.authors.AuthorsViewModel
 import net.yourein.rebro.feature.bookdetail.BookDetailViewModel
+import net.yourein.rebro.feature.books.BooksViewModel
+import net.yourein.rebro.feature.bookshelfs.BookshelvesViewModel
 import net.yourein.rebro.feature.circles.CirclesViewModel
 import net.yourein.rebro.feature.registertop.IsdnDebugViewModel
 import net.yourein.rebro.feature.registertop.RegisterTopViewModel
@@ -147,6 +150,9 @@ abstract class BaseApplication : Application() {
         factory<SearchTopViewModel> { SearchTopViewModel(get()) }
         factory<SearchViewModel> { SearchViewModel(get()) }
         factory<BookDetailViewModel> { (bookId: Long) -> BookDetailViewModel(bookId, get(), get()) }
+        factory<BooksViewModel> { BooksViewModel(get()) }
+        factory<BookshelvesViewModel> { BookshelvesViewModel(get()) }
+        factory<AuthorsViewModel> { AuthorsViewModel(get()) }
         factory<CirclesViewModel> { CirclesViewModel(get()) }
         factory<SeriesViewModel> { SeriesViewModel(get()) }
         factory<RegisterTopViewModel> { RegisterTopViewModel(androidApplication(), get(), get(), get(), get(), get()) }

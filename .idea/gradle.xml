@@ -21,6 +21,7 @@
             <option value="$PROJECT_DIR$/feature/author-detail" />
             <option value="$PROJECT_DIR$/feature/authors" />
             <option value="$PROJECT_DIR$/feature/book-detail" />
+            <option value="$PROJECT_DIR$/feature/books" />
             <option value="$PROJECT_DIR$/feature/bookshelf-detail" />
             <option value="$PROJECT_DIR$/feature/bookshelfs" />
             <option value="$PROJECT_DIR$/feature/circles" />

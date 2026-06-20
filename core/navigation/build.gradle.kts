@@ -28,6 +28,9 @@ dependencies {
     implementation(project(":feature:search-top"))
     implementation(project(":feature:register-top"))
     implementation(project(":feature:book-detail"))
+    implementation(project(":feature:books"))
+    implementation(project(":feature:bookshelfs"))
+    implementation(project(":feature:authors"))
     implementation(project(":feature:circles"))
     implementation(project(":feature:series"))
 
