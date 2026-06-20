@@ -66,12 +66,21 @@ class IsdnDebugViewModel(
                 title = dc.title ?: "",
                 bookType = BookType.COMMERCIAL,
                 publisher = dc.publisher ?: "",
-                authorNames = listOfNotNull(dc.creator),
+                authorNames = dc.creator
+                    ?.split(", ")
+                    ?.map { it.replace(ndlRoleSuffixPattern, "").trim() }
+                    ?.filter { it.isNotEmpty() }
+                    ?: emptyList(),
                 circleName = null,
                 coverImageUrl = null,
             )
         }
         return null
+    }
+
+    companion object {
+        private val ndlRoleSuffixPattern =
+            """\s*[\[［]?(?:著|訳|編|監修|原作|絵|画|イラスト|写真|共著|共編|校注|選|述|解説|構成|作)[\]］]?\s*$""".toRegex()
     }
 
     fun fetchByBarcode(barcode: String) {
