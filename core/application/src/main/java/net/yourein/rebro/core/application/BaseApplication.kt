@@ -149,7 +149,7 @@ abstract class BaseApplication : Application() {
     private val viewModelKoinModule = module {
         factory<SearchTopViewModel> { SearchTopViewModel(get()) }
         factory<SearchViewModel> { SearchViewModel(get()) }
-        factory<BookDetailViewModel> { (bookId: Long) -> BookDetailViewModel(bookId, get(), get()) }
+        factory<BookDetailViewModel> { (bookId: Long) -> BookDetailViewModel(bookId, get(), get(), get(), get(), get(), get(), get()) }
         factory<BooksViewModel> { BooksViewModel(get()) }
         factory<BookshelvesViewModel> { BookshelvesViewModel(get()) }
         factory<AuthorsViewModel> { AuthorsViewModel(get()) }

@@ -10,8 +10,10 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import net.yourein.rebro.core.compose.LoadingState
 import net.yourein.rebro.core.resources.RebroColor
 import net.yourein.rebro.core.resources.RebroTheme
@@ -29,23 +31,15 @@ fun BookDetailScreen(
     navigateToBookshelfDetail: (bookshelfId: Long) -> Unit,
     viewModel: BookDetailViewModel = koinViewModel { parametersOf(bookId) },
 ) {
-    BookDetailScreen(
-        bookState = viewModel.bookState,
-        bookshelf = viewModel.bookshelf,
-        navigateBack = navigateBack,
-        navigateToAuthorDetail = navigateToAuthorDetail,
-        navigateToBookshelfDetail = navigateToBookshelfDetail,
-    )
-}
+    val editSelectedAuthors by viewModel.editSelectedAuthors.collectAsStateWithLifecycle()
+    val allAuthors by viewModel.allAuthors.collectAsStateWithLifecycle()
+    val editSelectedBookshelf by viewModel.editSelectedBookshelf.collectAsStateWithLifecycle()
+    val allBookshelves by viewModel.allBookshelves.collectAsStateWithLifecycle()
+    val editSelectedCircle by viewModel.editSelectedCircle.collectAsStateWithLifecycle()
+    val allCircles by viewModel.allCircles.collectAsStateWithLifecycle()
+    val editSelectedSeries by viewModel.editSelectedSeries.collectAsStateWithLifecycle()
+    val allSeries by viewModel.allSeries.collectAsStateWithLifecycle()
 
-@Composable
-private fun BookDetailScreen(
-    bookState: LoadingState<BookUiModel>,
-    bookshelf: Bookshelf?,
-    navigateBack: () -> Unit,
-    navigateToAuthorDetail: (authorName: String) -> Unit,
-    navigateToBookshelfDetail: (bookshelfId: Long) -> Unit,
-) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -55,20 +49,62 @@ private fun BookDetailScreen(
             )
     ) {
         BookDetailTopBar(
+            isEditing = viewModel.isEditing,
             onBackClick = navigateBack,
+            onEditClick = viewModel::startEditing,
+            onCancelEditClick = viewModel::cancelEditing,
             modifier = Modifier
                 .background(RebroColor.Background)
                 .fillMaxWidth()
         )
 
-        when (bookState) {
+        when (val state = viewModel.bookState) {
             is LoadingState.Success -> {
-                BookDetailSuccessScreen(
-                    book = bookState.value,
-                    bookshelf = bookshelf,
-                    navigateToAuthorDetail = navigateToAuthorDetail,
-                    navigateToBookshelfDetail = navigateToBookshelfDetail,
-                )
+                if (viewModel.isEditing) {
+                    BookDetailEditScreen(
+                        book = state.value,
+                        editTitle = viewModel.editTitle,
+                        editSubtitle = viewModel.editSubtitle,
+                        editReadingStatus = viewModel.editReadingStatus,
+                        editPublisher = viewModel.editPublisher,
+                        editIsbn = viewModel.editIsbn,
+                        editIsdn = viewModel.editIsdn,
+                        editSelectedAuthors = editSelectedAuthors,
+                        allAuthors = allAuthors,
+                        editSelectedBookshelf = editSelectedBookshelf,
+                        allBookshelves = allBookshelves,
+                        editSelectedCircle = editSelectedCircle,
+                        allCircles = allCircles,
+                        editSelectedSeries = editSelectedSeries,
+                        allSeries = allSeries,
+                        onTitleChange = viewModel::updateEditTitle,
+                        onSubtitleChange = viewModel::updateEditSubtitle,
+                        onReadingStatusChange = viewModel::updateEditReadingStatus,
+                        onPublisherChange = viewModel::updateEditPublisher,
+                        onIsbnChange = viewModel::updateEditIsbn,
+                        onIsdnChange = viewModel::updateEditIsdn,
+                        onToggleAuthor = viewModel::toggleAuthor,
+                        onRemoveAuthor = viewModel::removeAuthor,
+                        onAddNewAuthor = viewModel::addNewAuthor,
+                        onRenameAuthor = viewModel::renameAuthor,
+                        onSetBookshelf = viewModel::setEditBookshelf,
+                        onAddNewBookshelf = viewModel::addNewBookshelf,
+                        onSetCircle = viewModel::setEditCircle,
+                        onAddNewCircle = viewModel::addNewCircle,
+                        onRenameCircle = viewModel::renameCircle,
+                        onToggleSeries = viewModel::toggleSeries,
+                        onRemoveSeries = viewModel::removeSeries,
+                        onAddNewSeries = viewModel::addNewSeries,
+                        onSave = viewModel::saveChanges,
+                    )
+                } else {
+                    BookDetailSuccessScreen(
+                        book = state.value,
+                        bookshelf = viewModel.bookshelf,
+                        navigateToAuthorDetail = navigateToAuthorDetail,
+                        navigateToBookshelfDetail = navigateToBookshelfDetail,
+                    )
+                }
             }
 
             is LoadingState.Loading -> {
@@ -86,9 +122,25 @@ private fun BookDetailScreen(
 @Composable
 private fun BookDetailScreenCommercialPreview() {
     RebroTheme {
-        BookDetailScreen(
-            bookState = LoadingState.Success(
-                BookUiModel.Commercial(
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .windowInsetsPadding(
+                    WindowInsets.safeDrawing
+                        .only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
+                )
+        ) {
+            BookDetailTopBar(
+                isEditing = false,
+                onBackClick = {},
+                onEditClick = {},
+                onCancelEditClick = {},
+                modifier = Modifier
+                    .background(RebroColor.Background)
+                    .fillMaxWidth()
+            )
+            BookDetailSuccessScreen(
+                book = BookUiModel.Commercial(
                     id = 1L,
                     bookshelfId = 1L,
                     title = "吾輩は猫である",
@@ -99,13 +151,12 @@ private fun BookDetailScreenCommercialPreview() {
                     seriesNames = emptyList(),
                     isbn = "978-4-00-310101-8",
                     publisher = "岩波書店",
-                )
-            ),
-            bookshelf = Bookshelf(id = 1L, name = "文学"),
-            navigateBack = {},
-            navigateToAuthorDetail = {},
-            navigateToBookshelfDetail = {},
-        )
+                ),
+                bookshelf = Bookshelf(id = 1L, name = "文学"),
+                navigateToAuthorDetail = {},
+                navigateToBookshelfDetail = {},
+            )
+        }
     }
 }
 
@@ -113,9 +164,25 @@ private fun BookDetailScreenCommercialPreview() {
 @Composable
 private fun BookDetailScreenDoujinPreview() {
     RebroTheme {
-        BookDetailScreen(
-            bookState = LoadingState.Success(
-                BookUiModel.Doujin(
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .windowInsetsPadding(
+                    WindowInsets.safeDrawing
+                        .only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
+                )
+        ) {
+            BookDetailTopBar(
+                isEditing = false,
+                onBackClick = {},
+                onEditClick = {},
+                onCancelEditClick = {},
+                modifier = Modifier
+                    .background(RebroColor.Background)
+                    .fillMaxWidth()
+            )
+            BookDetailSuccessScreen(
+                book = BookUiModel.Doujin(
                     id = 2L,
                     bookshelfId = 1L,
                     title = "とある同人誌",
@@ -127,12 +194,11 @@ private fun BookDetailScreenDoujinPreview() {
                     circleId = 1L,
                     circleName = "サークル名",
                     isdn = "ISDN-0000-0000",
-                )
-            ),
-            bookshelf = Bookshelf(id = 1L, name = "同人誌"),
-            navigateBack = {},
-            navigateToAuthorDetail = {},
-            navigateToBookshelfDetail = {},
-        )
+                ),
+                bookshelf = Bookshelf(id = 1L, name = "同人誌"),
+                navigateToAuthorDetail = {},
+                navigateToBookshelfDetail = {},
+            )
+        }
     }
 }

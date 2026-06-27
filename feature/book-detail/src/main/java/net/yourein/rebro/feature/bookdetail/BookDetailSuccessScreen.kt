@@ -3,6 +3,7 @@ package net.yourein.rebro.feature.bookdetail
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -15,7 +16,10 @@ import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -27,9 +31,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
+import net.yourein.rebro.core.compose.AuthorSelectionSection
+import net.yourein.rebro.core.compose.BookshelfSelectionSection
+import net.yourein.rebro.core.compose.CircleSelectionSection
+import net.yourein.rebro.core.compose.SeriesSelectionSection
 import net.yourein.rebro.core.resources.RebroColor
 import net.yourein.rebro.model.ReadingStatus
+import net.yourein.rebro.model.entity.Author
 import net.yourein.rebro.model.entity.Bookshelf
+import net.yourein.rebro.model.entity.Circle
+import net.yourein.rebro.model.entity.Series
 import net.yourein.rebro.model.uimodel.BookUiModel
 
 @Composable
@@ -103,6 +114,16 @@ internal fun BookDetailSuccessScreen(
             thickness = 1.dp,
             modifier = Modifier.padding(vertical = 16.dp)
         )
+
+        if (book.seriesNames.isNotEmpty()) {
+            SeriesField(seriesNames = book.seriesNames)
+            HorizontalDivider(
+                color = Color.Gray,
+                thickness = 1.dp,
+                modifier = Modifier.padding(vertical = 16.dp)
+            )
+        }
+
         DetailField(label = "Reading Status", value = book.readingStatus.label)
 
         when (book) {
@@ -139,9 +160,178 @@ internal fun BookDetailSuccessScreen(
     }
 }
 
-/**
- * 著者の一覧。各著者名は、その著者の作品一覧へ遷移できるリンクとして表示する。
- */
+// ── 編集モード ────────────────────────────────────
+
+@Composable
+internal fun BookDetailEditScreen(
+    book: BookUiModel,
+    editTitle: String,
+    editSubtitle: String,
+    editReadingStatus: ReadingStatus,
+    editPublisher: String,
+    editIsbn: String,
+    editIsdn: String,
+    editSelectedAuthors: List<Author>,
+    allAuthors: List<Author>,
+    editSelectedBookshelf: Bookshelf?,
+    allBookshelves: List<Bookshelf>,
+    editSelectedCircle: Circle?,
+    allCircles: List<Circle>,
+    editSelectedSeries: List<Series>,
+    allSeries: List<Series>,
+    onTitleChange: (String) -> Unit,
+    onSubtitleChange: (String) -> Unit,
+    onReadingStatusChange: (ReadingStatus) -> Unit,
+    onPublisherChange: (String) -> Unit,
+    onIsbnChange: (String) -> Unit,
+    onIsdnChange: (String) -> Unit,
+    onToggleAuthor: (Author) -> Unit,
+    onRemoveAuthor: (Author) -> Unit,
+    onAddNewAuthor: (String) -> Unit,
+    onRenameAuthor: (Long, String) -> Unit,
+    onSetBookshelf: (Bookshelf?) -> Unit,
+    onAddNewBookshelf: (String) -> Unit,
+    onSetCircle: (Circle?) -> Unit,
+    onAddNewCircle: (String) -> Unit,
+    onRenameCircle: (Long, String) -> Unit,
+    onToggleSeries: (Series) -> Unit,
+    onRemoveSeries: (Series) -> Unit,
+    onAddNewSeries: (String) -> Unit,
+    onSave: () -> Unit,
+) {
+    val bottomPadding = WindowInsets.safeDrawing.asPaddingValues().calculateBottomPadding()
+    Column(
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = bottomPadding + 16.dp)
+    ) {
+        AsyncImage(
+            model = book.coverImageUrl,
+            contentDescription = null,
+            contentScale = ContentScale.Fit,
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .sizeIn(maxWidth = 300.dp, maxHeight = 300.dp)
+                .fillMaxSize()
+                .clip(RoundedCornerShape(8.dp))
+        )
+
+        Spacer(modifier = Modifier.size(12.dp))
+
+        OutlinedTextField(
+            value = editTitle,
+            onValueChange = onTitleChange,
+            label = { Text("Title") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
+        )
+
+        OutlinedTextField(
+            value = editSubtitle,
+            onValueChange = onSubtitleChange,
+            label = { Text("Subtitle") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
+        )
+
+        HorizontalDivider()
+
+        AuthorSelectionSection(
+            selectedAuthors = editSelectedAuthors,
+            allAuthors = allAuthors,
+            onToggleAuthor = onToggleAuthor,
+            onRemoveAuthor = onRemoveAuthor,
+            onAddNewAuthor = onAddNewAuthor,
+            onRenameAuthor = onRenameAuthor,
+        )
+
+        HorizontalDivider()
+
+        SeriesSelectionSection(
+            selectedSeries = editSelectedSeries,
+            allSeries = allSeries,
+            onToggleSeries = onToggleSeries,
+            onRemoveSeries = onRemoveSeries,
+            onAddNewSeries = onAddNewSeries,
+        )
+
+        HorizontalDivider()
+
+        BookshelfSelectionSection(
+            selectedBookshelf = editSelectedBookshelf,
+            allBookshelves = allBookshelves,
+            onSelectBookshelf = onSetBookshelf,
+            onAddNewBookshelf = onAddNewBookshelf,
+        )
+
+        HorizontalDivider()
+
+        Text(text = "Reading Status", fontSize = 16.sp)
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            ReadingStatus.entries.forEach { status ->
+                FilterChip(
+                    selected = editReadingStatus == status,
+                    onClick = { onReadingStatusChange(status) },
+                    label = { Text(status.label) },
+                )
+            }
+        }
+
+        HorizontalDivider()
+
+        when (book) {
+            is BookUiModel.Commercial -> {
+                OutlinedTextField(
+                    value = editPublisher,
+                    onValueChange = onPublisherChange,
+                    label = { Text("Publisher") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+
+                OutlinedTextField(
+                    value = editIsbn,
+                    onValueChange = onIsbnChange,
+                    label = { Text("ISBN") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+
+            is BookUiModel.Doujin -> {
+                CircleSelectionSection(
+                    selectedCircle = editSelectedCircle,
+                    allCircles = allCircles,
+                    onSelectCircle = onSetCircle,
+                    onAddNewCircle = onAddNewCircle,
+                    onRenameCircle = onRenameCircle,
+                )
+
+                OutlinedTextField(
+                    value = editIsdn,
+                    onValueChange = onIsdnChange,
+                    label = { Text("ISDN") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        }
+
+        HorizontalDivider()
+
+        Button(
+            onClick = onSave,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text("Save")
+        }
+    }
+}
+
+// ── 共通コンポーネント ──────────────────────────────
+
 @Composable
 private fun AuthorsField(
     authors: List<String>,
@@ -167,7 +357,21 @@ private fun AuthorsField(
     }
 }
 
-/** 別画面へ遷移できることを示す、強調色のクリック可能なテキスト。 */
+@Composable
+private fun SeriesField(seriesNames: List<String>) {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        FieldLabel(text = "Series")
+        seriesNames.forEach { name ->
+            Text(
+                text = name,
+                fontSize = 16.sp,
+                lineHeight = 20.sp,
+                color = RebroColor.TextPrimary,
+            )
+        }
+    }
+}
+
 @Composable
 private fun LinkText(
     text: String,
@@ -187,7 +391,7 @@ private fun LinkText(
 }
 
 @Composable
-private fun DetailField(
+internal fun DetailField(
     label: String,
     value: String,
 ) {
@@ -203,7 +407,7 @@ private fun DetailField(
 }
 
 @Composable
-private fun FieldLabel(text: String) {
+internal fun FieldLabel(text: String) {
     Text(
         text = text,
         fontSize = 12.sp,
@@ -212,14 +416,12 @@ private fun FieldLabel(text: String) {
     )
 }
 
-/** 値が未設定のときに表示するプレースホルダ。 */
 private const val PLACEHOLDER = "—"
 
-private fun String?.orPlaceholder(): String =
+internal fun String?.orPlaceholder(): String =
     if (isNullOrBlank()) PLACEHOLDER else this
 
-/** 読書状態を画面表示用のラベルへ変換する。 */
-private val ReadingStatus.label: String
+internal val ReadingStatus.label: String
     get() = when (this) {
         ReadingStatus.UNREAD -> "Unread"
         ReadingStatus.READING -> "Reading"

@@ -30,6 +30,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import net.yourein.rebro.core.compose.AuthorSelectionSection
+import net.yourein.rebro.core.compose.BookshelfSelectionSection
+import net.yourein.rebro.core.compose.CircleSelectionSection
+import net.yourein.rebro.core.compose.SeriesSelectionSection
 import net.yourein.rebro.core.resources.RebroTheme
 import net.yourein.rebro.model.BookType
 import net.yourein.rebro.model.entity.Author

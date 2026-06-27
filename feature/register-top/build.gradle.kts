@@ -23,6 +23,7 @@ android {
 
 dependencies {
     implementation(project(":core:resources"))
+    implementation(project(":core:compose"))
     implementation(project(":model"))
     implementation(project(":interfaces"))
 

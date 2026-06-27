@@ -1,4 +1,4 @@
-package net.yourein.rebro.feature.registertop
+package net.yourein.rebro.core.compose
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -47,7 +47,7 @@ import net.yourein.rebro.model.entity.Series
 // ── Author ───────────────────────────────────────
 
 @Composable
-internal fun AuthorSelectionSection(
+fun AuthorSelectionSection(
     selectedAuthors: List<Author>,
     allAuthors: List<Author>,
     onToggleAuthor: (Author) -> Unit,
@@ -115,7 +115,7 @@ internal fun AuthorSelectionSection(
 // ── Bookshelf ────────────────────────────────────
 
 @Composable
-internal fun BookshelfSelectionSection(
+fun BookshelfSelectionSection(
     selectedBookshelf: Bookshelf?,
     allBookshelves: List<Bookshelf>,
     onSelectBookshelf: (Bookshelf?) -> Unit,
@@ -175,7 +175,7 @@ internal fun BookshelfSelectionSection(
 // ── Circle ───────────────────────────────────────
 
 @Composable
-internal fun CircleSelectionSection(
+fun CircleSelectionSection(
     selectedCircle: Circle?,
     allCircles: List<Circle>,
     onSelectCircle: (Circle?) -> Unit,
@@ -237,7 +237,7 @@ internal fun CircleSelectionSection(
 // ── Series ──────────────────────────────────────
 
 @Composable
-internal fun SeriesSelectionSection(
+fun SeriesSelectionSection(
     selectedSeries: List<Series>,
     allSeries: List<Series>,
     onToggleSeries: (Series) -> Unit,
