@@ -1,5 +1,8 @@
 package net.yourein.rebro.feature.bookdetail
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
@@ -12,6 +15,7 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import net.yourein.rebro.core.compose.LoadingState
@@ -39,6 +43,15 @@ fun BookDetailScreen(
     val allCircles by viewModel.allCircles.collectAsStateWithLifecycle()
     val editSelectedSeries by viewModel.editSelectedSeries.collectAsStateWithLifecycle()
     val allSeries by viewModel.allSeries.collectAsStateWithLifecycle()
+    val coverImagePath by viewModel.editCoverImagePath.collectAsStateWithLifecycle()
+    val isDownloading by viewModel.isDownloading.collectAsStateWithLifecycle()
+
+    val context = LocalContext.current
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+    ) { uri ->
+        uri?.let { viewModel.saveCoverImageFromPicker(context, it) }
+    }
 
     Column(
         modifier = Modifier
@@ -69,6 +82,8 @@ fun BookDetailScreen(
                         editPublisher = viewModel.editPublisher,
                         editIsbn = viewModel.editIsbn,
                         editIsdn = viewModel.editIsdn,
+                        coverImagePath = coverImagePath,
+                        isDownloading = isDownloading,
                         editSelectedAuthors = editSelectedAuthors,
                         allAuthors = allAuthors,
                         editSelectedBookshelf = editSelectedBookshelf,
@@ -83,6 +98,15 @@ fun BookDetailScreen(
                         onPublisherChange = viewModel::updateEditPublisher,
                         onIsbnChange = viewModel::updateEditIsbn,
                         onIsdnChange = viewModel::updateEditIsdn,
+                        onPickFromGallery = {
+                            photoPickerLauncher.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                            )
+                        },
+                        onUrlSpecified = {
+                            viewModel.downloadCoverImage(context, it)
+                        },
+                        onClearImage = viewModel::clearCoverImage,
                         onToggleAuthor = viewModel::toggleAuthor,
                         onRemoveAuthor = viewModel::removeAuthor,
                         onAddNewAuthor = viewModel::addNewAuthor,

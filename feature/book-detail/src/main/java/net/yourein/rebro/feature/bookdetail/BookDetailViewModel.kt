@@ -1,5 +1,7 @@
 package net.yourein.rebro.feature.bookdetail
 
+import android.content.Context
+import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,6 +31,9 @@ import net.yourein.rebro.model.uimodel.BookUiModel
 import net.yourein.rebro.model.uimodel.toUiModel
 import net.yourein.rebro.usecase.BooksUseCase
 import net.yourein.rebro.usecase.BookshelfUseCase
+import java.io.File
+import java.net.URL
+import java.util.UUID
 
 class BookDetailViewModel(
     private val bookId: Long,
@@ -95,6 +100,66 @@ class BookDetailViewModel(
     fun updateEditPublisher(value: String) { editPublisher = value }
     fun updateEditIsbn(value: String) { editIsbn = value }
     fun updateEditIsdn(value: String) { editIsdn = value }
+
+    // ── カバー画像 ───────────────────────────────
+
+    private val _editCoverImagePath = MutableStateFlow<String?>(null)
+    val editCoverImagePath: StateFlow<String?> = _editCoverImagePath.asStateFlow()
+
+    private val _isDownloading = MutableStateFlow(false)
+    val isDownloading: StateFlow<Boolean> = _isDownloading.asStateFlow()
+
+    private var newCoverFilePath: String? = null
+
+    fun saveCoverImageFromPicker(applicationContext: Context, uri: Uri) {
+        viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            deleteNewCoverFile()
+            runCatching {
+                val file = createCoverFile(applicationContext)
+                applicationContext.contentResolver.openInputStream(uri)?.use { input ->
+                    file.outputStream().use { output -> input.copyTo(output) }
+                } ?: throw IllegalStateException("Cannot open input stream")
+                file.absolutePath
+            }.onSuccess { path ->
+                newCoverFilePath = path
+                _editCoverImagePath.value = path
+            }
+        }
+    }
+
+    fun downloadCoverImage(applicationContext: Context, url: String) {
+        viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            _isDownloading.value = true
+            deleteNewCoverFile()
+            runCatching {
+                val file = createCoverFile(applicationContext)
+                URL(url).openStream().use { input ->
+                    file.outputStream().use { output -> input.copyTo(output) }
+                }
+                file.absolutePath
+            }.onSuccess { path ->
+                newCoverFilePath = path
+                _editCoverImagePath.value = path
+            }
+            _isDownloading.value = false
+        }
+    }
+
+    fun clearCoverImage() {
+        _editCoverImagePath.value = null
+    }
+
+    private fun deleteNewCoverFile() {
+        newCoverFilePath?.let { File(it).delete() }
+        newCoverFilePath = null
+    }
+
+    private fun createCoverFile(applicationContext: Context): File {
+        val filesDir = applicationContext.filesDir
+        val dir = File(filesDir, COVER_IMAGES_DIR)
+        dir.mkdirs()
+        return File(dir, "${UUID.randomUUID()}.jpg")
+    }
 
     // ── 著者選択 ──────────────────────────────────
 
@@ -271,6 +336,8 @@ class BookDetailViewModel(
         editTitle = uiModel.title
         editSubtitle = uiModel.subtitle.orEmpty()
         editReadingStatus = uiModel.readingStatus
+        _editCoverImagePath.value = uiModel.coverImageUrl
+        newCoverFilePath = null
         _editSelectedAuthors.value = raw.authors
         _editSelectedBookshelf.value = bookshelf
         _editSelectedSeries.value = raw.series
@@ -291,6 +358,7 @@ class BookDetailViewModel(
     }
 
     fun cancelEditing() {
+        deleteNewCoverFile()
         isEditing = false
     }
 
@@ -307,6 +375,7 @@ class BookDetailViewModel(
                     subtitle = editSubtitle.trim().ifEmpty { null },
                     readingStatus = editReadingStatus,
                     bookshelfId = selectedBookshelf.id,
+                    thumbnailPath = _editCoverImagePath.value,
                 )
                 bookRepository.updateBook(updatedBook)
 
@@ -364,8 +433,13 @@ class BookDetailViewModel(
                     LoadingState.Error(null, Throwable("Book not found."))
                 }
                 bookshelf = selectedBookshelf
+                newCoverFilePath = null
                 isEditing = false
             }
         }
+    }
+
+    private companion object {
+        const val COVER_IMAGES_DIR = "cover_images"
     }
 }
