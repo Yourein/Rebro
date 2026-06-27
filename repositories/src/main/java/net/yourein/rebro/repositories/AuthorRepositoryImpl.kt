@@ -1,6 +1,7 @@
 package net.yourein.rebro.repositories
 
 import kotlinx.coroutines.flow.Flow
+import net.yourein.rebro.database.AuthorDao
 import net.yourein.rebro.interfaces.AuthorRepository
 import net.yourein.rebro.model.entity.Author
 

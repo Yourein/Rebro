@@ -2,6 +2,7 @@ package net.yourein.rebro.core.application
 
 import android.app.Application
 import androidx.room.Room
+import net.yourein.rebro.database.AppDatabase
 import net.yourein.rebro.feature.authors.AuthorsViewModel
 import net.yourein.rebro.feature.bookdetail.BookDetailViewModel
 import net.yourein.rebro.feature.books.BooksViewModel
@@ -19,7 +20,6 @@ import net.yourein.rebro.interfaces.CircleRepository
 import net.yourein.rebro.interfaces.IsdnRepository
 import net.yourein.rebro.interfaces.NdlRepository
 import net.yourein.rebro.interfaces.SeriesRepository
-import net.yourein.rebro.repositories.AppDatabase
 import net.yourein.rebro.repositories.AuthorRepositoryImpl
 import net.yourein.rebro.repositories.BookRepositoryImpl
 import net.yourein.rebro.repositories.BookshelfRepositoryImpl

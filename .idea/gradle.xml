@@ -17,6 +17,7 @@
             <option value="$PROJECT_DIR$/core/compose" />
             <option value="$PROJECT_DIR$/core/navigation" />
             <option value="$PROJECT_DIR$/core/resources" />
+            <option value="$PROJECT_DIR$/database" />
             <option value="$PROJECT_DIR$/feature" />
             <option value="$PROJECT_DIR$/feature/author-detail" />
             <option value="$PROJECT_DIR$/feature/authors" />

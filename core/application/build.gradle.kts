@@ -26,6 +26,7 @@ dependencies {
     implementation(project(":model"))
     implementation(project(":interfaces"))
     implementation(project(":repositories"))   // 本番 Repository の実 Impl を登録するため
+    implementation(project(":database"))       // AppDatabase を構築するため
     implementation(project(":usecase"))
 
     implementation(project(":feature:search"))
@@ -38,7 +39,7 @@ dependencies {
     implementation(project(":feature:circles"))
     implementation(project(":feature:series"))
 
-    implementation(libs.androidx.room.runtime)  // AppDatabase を構築するため
+    implementation(libs.androidx.room.runtime)
     implementation(libs.retrofit.core)
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging)

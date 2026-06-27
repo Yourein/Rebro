@@ -1,6 +1,7 @@
 package net.yourein.rebro.repositories
 
 import kotlinx.coroutines.flow.Flow
+import net.yourein.rebro.database.SeriesDao
 import net.yourein.rebro.interfaces.SeriesRepository
 import net.yourein.rebro.model.entity.Series
 

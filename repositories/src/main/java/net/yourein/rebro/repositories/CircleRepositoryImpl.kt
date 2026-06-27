@@ -1,6 +1,7 @@
 package net.yourein.rebro.repositories
 
 import kotlinx.coroutines.flow.Flow
+import net.yourein.rebro.database.CircleDao
 import net.yourein.rebro.interfaces.CircleRepository
 import net.yourein.rebro.model.entity.Circle
 

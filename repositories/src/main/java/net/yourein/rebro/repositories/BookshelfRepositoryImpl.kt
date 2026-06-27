@@ -1,6 +1,7 @@
 package net.yourein.rebro.repositories
 
 import kotlinx.coroutines.flow.Flow
+import net.yourein.rebro.database.BookshelfDao
 import net.yourein.rebro.interfaces.BookshelfRepository
 import net.yourein.rebro.model.entity.Bookshelf
 

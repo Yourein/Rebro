@@ -1,4 +1,4 @@
-package net.yourein.rebro.repositories
+package net.yourein.rebro.database
 
 import androidx.room.Dao
 import androidx.room.Delete

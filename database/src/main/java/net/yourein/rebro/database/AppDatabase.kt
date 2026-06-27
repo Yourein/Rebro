@@ -1,4 +1,4 @@
-package net.yourein.rebro.repositories
+package net.yourein.rebro.database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase

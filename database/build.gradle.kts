@@ -1,9 +1,10 @@
 plugins {
     alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.ksp)
 }
 
 android {
-    namespace = "net.yourein.rebro.repositories"
+    namespace = "net.yourein.rebro.database"
     compileSdk = 36
 
     defaultConfig {
@@ -18,10 +19,8 @@ android {
 
 dependencies {
     implementation(project(":model"))
-    implementation(project(":interfaces"))
-    implementation(project(":database"))
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
     implementation(libs.kotlinx.coroutines.core)
-    implementation(libs.retrofit.core)
-    implementation(libs.okhttp)
-    implementation(libs.xmlutil.serialization)
 }
