@@ -6,7 +6,10 @@
   "permissions": [],
   "content_scripts": [
     {
-      "matches": ["https://*.booth.pm/items/*"],
+      "matches": [
+        "https://*.booth.pm/items/*",
+        "https://www.melonbooks.co.jp/detail/detail.php*"
+      ],
       "js": ["dist/content.js"],
       "css": ["src/styles.css"],
       "run_at": "document_idle"

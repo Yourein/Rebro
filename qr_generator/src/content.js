@@ -37,7 +37,7 @@ function parseBoothPage() {
     }
   }
 
-  const result = {
+  return {
     title,
     bookType: "DOUJIN",
     publisher: "",
@@ -45,8 +45,50 @@ function parseBoothPage() {
     circleName,
     coverImageUrl,
   };
-  console.log("[Rebro QR] Parsed result:", result);
-  return result;
+}
+
+function parseMelonbooksPage() {
+  const pageHeader = document.querySelector(".page-header");
+  if (!pageHeader) return null;
+  const title = pageHeader.textContent.trim();
+
+  const authorNameEl = document.querySelector(".author-name");
+  let circleName = null;
+  if (authorNameEl) {
+    const a = authorNameEl.querySelector("a");
+    if (a) circleName = a.textContent.trim();
+  }
+
+  let coverImageUrl = null;
+  const itemImg = document.querySelector(".item-img");
+  if (itemImg) {
+    const activeLink = itemImg.querySelector('a[tabindex="0"]');
+    if (activeLink) {
+      coverImageUrl = activeLink.getAttribute("href");
+    } else {
+      const firstLink = itemImg.querySelector("figure a[href]");
+      if (firstLink) coverImageUrl = firstLink.getAttribute("href");
+    }
+    if (coverImageUrl && coverImageUrl.startsWith("//")) {
+      coverImageUrl = "https:" + coverImageUrl;
+    }
+  }
+
+  return {
+    title,
+    bookType: "DOUJIN",
+    publisher: "",
+    authorNames: [],
+    circleName,
+    coverImageUrl,
+  };
+}
+
+function parsePage() {
+  const host = location.hostname;
+  if (host.endsWith("booth.pm")) return parseBoothPage();
+  if (host === "www.melonbooks.co.jp") return parseMelonbooksPage();
+  return null;
 }
 
 function showQrModal(dataUrl, result) {
@@ -86,12 +128,13 @@ function showQrModal(dataUrl, result) {
 }
 
 async function generateAndShowQr() {
-  const result = parseBoothPage();
+  const result = parsePage();
   if (!result) {
     alert("ページの情報を取得できませんでした");
     return;
   }
 
+  console.log("[Rebro QR] Parsed result:", result);
   const jsonStr = JSON.stringify(result);
   const bytes = new TextEncoder().encode(jsonStr);
   const segments = [{ data: bytes, mode: "byte" }];
@@ -111,18 +154,28 @@ async function generateAndShowQr() {
 }
 
 function injectButton() {
-  const variationCart = document.querySelector(".variation-cart");
-  if (!variationCart) {
-    console.warn("[Rebro QR] .variation-cart not found");
-    return;
-  }
-
   const btn = document.createElement("button");
   btn.className = "rebro-qr-button";
   btn.textContent = "Rebro QRを表示";
   btn.addEventListener("click", generateAndShowQr);
 
-  variationCart.parentElement.insertBefore(btn, variationCart);
+  const host = location.hostname;
+
+  if (host.endsWith("booth.pm")) {
+    const variationCart = document.querySelector(".variation-cart");
+    if (!variationCart) {
+      console.warn("[Rebro QR] .variation-cart not found");
+      return;
+    }
+    variationCart.parentElement.insertBefore(btn, variationCart);
+  } else if (host === "www.melonbooks.co.jp") {
+    const shareGroup = document.querySelector(".item-share.btn-share-group");
+    if (!shareGroup) {
+      console.warn("[Rebro QR] .item-share.btn-share-group not found");
+      return;
+    }
+    shareGroup.parentElement.insertBefore(btn, shareGroup);
+  }
 }
 
 injectButton();

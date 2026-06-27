@@ -30,3 +30,14 @@ data class AutofillResult(
 - `authorNames` → ページをHTMLで見た時、 `class=home-link-container__nickname` のDiv配下に存在する a タグで記述されたユーザー名
 - `coverImageUrl` → `market-item-detail-item-image-wrapper` 配下に存在する `img` タグのうち、親に `data-stick-index=0` の属性を持つものの `src`
 
+## (追記) Melonbooks → Rebro QR
+
+`www.melonbooks.co.jp/detail/detail.php?...` にマッチするページに存在する時、 `item-share btn-share-group` の上に BOOTH 同様、「Rebro QRを表示」ボタンを作成する。
+
+ページ内容とAutofillResultのメンバは以下のようにマッピングする。
+
+- `title` → ページをHTMLで見た時、`page-header` classの中身
+- `circleName` → ページをHTMLで見た時 `author-name` classの中身のaタグの中身
+- `bookType` →　場合によらず `DOUJIN`
+- `authorNames` → 場合によらず空
+- `coverImageUrl` → ページをHTMLで見た時 `item-img` div 配下の `tabIndex = 0` なるaタグのhref
